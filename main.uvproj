@@ -431,6 +431,11 @@
               <FileType>1</FileType>
               <FilePath>.\lunar.c</FilePath>
             </File>
+            <File>
+              <FileName>mq2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\mq2.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

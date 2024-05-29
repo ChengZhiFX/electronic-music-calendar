@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "delay.h"
 #include "lunar.h"
+#include "mq2.h"
 
 Sensor sensor;
 Alarm alarm;
@@ -97,5 +98,6 @@ void main(){
 			default: break;
 		}
 		alarm_tick_tock();
+		mq2_tick_tock();
 	}
 }

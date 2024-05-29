@@ -111,27 +111,36 @@ void ds1302_read_time(void)
 
 void print_time_now(uchar x, uchar y, uchar hour_type){
 	uchar hour;
-	char time_to_show[9];
+	char time_to_show[11];
 	read_discrete_time();
 	if(hour_type == 12){
 		hour = get_integer_hour();
-		if(hour >= 12) OLED_ShowString(x+72,y,"PM",16);
-		else OLED_ShowString(x+72,y,"AM",16);
+		if(hour >= 12){
+			time_to_show[0] = 'P';
+			time_to_show[1] = 'M';
+		}
+		else{
+			time_to_show[0] = 'A';
+			time_to_show[1] = 'M';
+		}
 		if(hour > 12) hour -= 12;
 		dis_time_buf[8] = hour / 10;
 		dis_time_buf[9] = hour % 10;
 	}
-	else OLED_ShowString(x+72,y,"  ",16);
-	if(dis_time_buf[8] == 0) time_to_show[0] = ' ';
-	else time_to_show[0] = (char)(dis_time_buf[8]+'0');
-	time_to_show[1] = (char)(dis_time_buf[9]+'0');
-	time_to_show[2] = ':';
-	time_to_show[3] = (char)(dis_time_buf[10]+'0');
-	time_to_show[4] = (char)(dis_time_buf[11]+'0');
-	time_to_show[5] = ':';
-	time_to_show[6] = (char)(dis_time_buf[12]+'0');
-	time_to_show[7] = (char)(dis_time_buf[13]+'0');
-	time_to_show[8] = 0;
+	else{
+		time_to_show[0] = ' ';
+		time_to_show[1] = ' ';
+	}
+	if(dis_time_buf[8] == 0) time_to_show[2] = ' ';
+	else time_to_show[2] = (char)(dis_time_buf[8]+'0');
+	time_to_show[3] = (char)(dis_time_buf[9]+'0');
+	time_to_show[4] = ':';
+	time_to_show[5] = (char)(dis_time_buf[10]+'0');
+	time_to_show[6] = (char)(dis_time_buf[11]+'0');
+	time_to_show[7] = ':';
+	time_to_show[8] = (char)(dis_time_buf[12]+'0');
+	time_to_show[9] = (char)(dis_time_buf[13]+'0');
+	time_to_show[10] = 0;
 	OLED_ShowString(x,y,time_to_show,16);
 }
 

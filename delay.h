@@ -17,6 +17,7 @@
 void Delay_50ms(uint Del_50ms);
 void delay_ms(uint ms);
 void delay_us(uint us);
+void delay_for_mq2();
 char Char(char tinyint);
 
 #endif

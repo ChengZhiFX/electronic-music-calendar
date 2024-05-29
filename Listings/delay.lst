@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   DELAY                                                             05/28/2024 19:05:46 PAGE 1   
+C51 COMPILER V9.60.7.0   DELAY                                                             05/29/2024 20:34:48 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DELAY
@@ -34,10 +34,17 @@ line level    source
   24          char Char(char tinyint){
   25   1        return (char)(tinyint + '0');
   26   1      }
+  27          
+  28          void delay_for_mq2(){
+  29   1        uchar m,n,s;
+  30   1        for(m=20;m>0;m--)
+  31   1          for(n=20;n>0;n--)
+  32   1            for(s=248;s>0;s--);
+  33   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     68    ----
+   CODE SIZE        =     81    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

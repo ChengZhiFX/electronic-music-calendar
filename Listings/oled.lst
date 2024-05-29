@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 1   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE OLED
@@ -62,7 +62,7 @@ line level    source
   52   1        for(i=0;i<8;i++)    
   53   1        {
   54   2            m=da;
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 2   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 2   
 
   55   2          //  OLED_SCLK_Clr();
   56   2          m=m&0x80;
@@ -126,7 +126,7 @@ line level    source
  114   2          OLED_WR_Byte(0xb0+m,0);   //page0-page1
  115   2          OLED_WR_Byte(0x00+0x02,0);    //low column start address
  116   2          OLED_WR_Byte(0x10,0);   //high column start address
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 3   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 3   
 
  117   2          for(n=0;n<128;n++)
  118   2            {
@@ -190,7 +190,7 @@ line level    source
  176          //mode:0,反白显示;1,正常显示         
  177          //size:选择字体 16/12 
  178          void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size)
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 4   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 4   
 
  179          {          
  180   1              uchar c=0,i=0;    
@@ -254,7 +254,7 @@ line level    source
  238   1      //            for(i=0;i<12;i++)
  239   1      //                OLED_WR_Byte(~F12X24[c*36+i],OLED_DATA);
  240   1      //            OLED_Set_Pos(x,y+1);
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 5   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 5   
 
  241   1      //            for(i=0;i<12;i++)
  242   1      //                OLED_WR_Byte(~F12X24[c*36+i+12],OLED_DATA);
@@ -318,7 +318,7 @@ line level    source
  300   1          {        OLED_ShowChar_Reverse(x,y,chr[j],Char_Size);
  301   2                  x+=8;
  302   2              if(x>=120){x=0;y+=2;}
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 6   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 6   
 
  303   2                  j++;
  304   2          }
@@ -382,7 +382,7 @@ line level    source
  361   1        OLED_WR_Byte(0xAE,OLED_CMD);//--display off
  362   1        OLED_WR_Byte(0x00,OLED_CMD);//---set low column address
  363   1        OLED_WR_Byte(0x10,OLED_CMD);//---set high column address
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 7   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 7   
 
  364   1        OLED_WR_Byte(0x40,OLED_CMD);//--set start line address  
  365   1        OLED_WR_Byte(0xB0,OLED_CMD);//--set page address
@@ -446,7 +446,7 @@ line level    source
  423   1      }
  424          
  425          void double_digit_to_string(uchar num, char str[3]){
-C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 17:30:52 PAGE 8   
+C51 COMPILER V9.60.7.0   OLED                                                              05/29/2024 20:34:47 PAGE 8   
 
  426   1        if(num < 10){
  427   2          str[0] = '0';

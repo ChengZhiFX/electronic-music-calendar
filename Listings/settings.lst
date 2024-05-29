@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 16:54:16 PAGE 1   
+C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 21:33:52 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SETTINGS
@@ -17,154 +17,190 @@ line level    source
    7          #include "oled.h"
    8          
    9          extern uchar time_buf[8];
-  10          
-  11          void page_set_date_and_time(){
-  12   1        char year_to_show[5] = "1970";
-  13   1        char month_to_show[3] = "01";
-  14   1        char day_to_show[3] = "01";
-  15   1        char hour_to_show[3] = "00";
-  16   1        char minute_to_show[3] = "00";
-  17   1        char second_to_show[3] = "00";
-  18   1        uint year = get_integer_year();
-  19   1        uchar month = get_integer_month(), day = get_integer_day(), weekday = get_integer_weekday();
-  20   1        uchar hour = get_integer_hour(), minute = get_integer_minute(), second = get_integer_second(), step = 1;
-  21   1        OLED_Clear();
-  22   1        quadruple_digit_to_string(year, year_to_show);
-  23   1        double_digit_to_string(month, month_to_show);
-  24   1        double_digit_to_string(day, day_to_show);
-  25   1        double_digit_to_string(hour, hour_to_show);
-  26   1        double_digit_to_string(minute, minute_to_show);
-  27   1        double_digit_to_string(second, second_to_show);
-  28   1        OLED_ShowString(8,0,"Set Date&Time",16);
-  29   1        while(1){
-  30   2          OLED_ShowChar(104,2,Char(weekday),16);
-  31   2          if(step == 1) OLED_ShowString_Reverse(16,2,year_to_show,16);
-  32   2          else OLED_ShowString(16,2,year_to_show,16);
-  33   2          OLED_ShowChar(50,2,'/',16);
-  34   2          if(step == 2) OLED_ShowString_Reverse(56,2,month_to_show,16);
-  35   2          else OLED_ShowString(56,2,month_to_show,16);
-  36   2          OLED_ShowChar(74,2,'/',16);
-  37   2          if(step == 3) OLED_ShowString_Reverse(80,2,day_to_show,16);
-  38   2          else OLED_ShowString(80,2,day_to_show,16);
-  39   2          if(step == 4) OLED_ShowString_Reverse(32,4,hour_to_show,16);
-  40   2          else OLED_ShowString(32,4,hour_to_show,16);
-  41   2          OLED_ShowChar(50,4,':',16);
-  42   2          if(step == 5) OLED_ShowString_Reverse(56,4,minute_to_show,16);
-  43   2          else OLED_ShowString(56,4,minute_to_show,16);
-  44   2          OLED_ShowChar(74,4,':',16);
-  45   2          if(step == 6) OLED_ShowString_Reverse(80,4,second_to_show,16);
-  46   2          else OLED_ShowString(80,4,second_to_show,16);
-  47   2          if(getKey() == 1){
-  48   3            switch(step){
-  49   4              case 1: {
-  50   5                year++;
-  51   5                if(year >= 10000) year = 0;
-  52   5                quadruple_digit_to_string(year, year_to_show);
-  53   5                day = adjust_30(year, month, day);
-  54   5                double_digit_to_string(day, day_to_show);
-C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 16:54:16 PAGE 2   
+  10          extern uchar smog_alarm_enable;
+  11          
+  12          void page_set_date_and_time(){
+  13   1        char year_to_show[5] = "1970";
+  14   1        char month_to_show[3] = "01";
+  15   1        char day_to_show[3] = "01";
+  16   1        char hour_to_show[3] = "00";
+  17   1        char minute_to_show[3] = "00";
+  18   1        char second_to_show[3] = "00";
+  19   1        uint year = get_integer_year();
+  20   1        uchar month = get_integer_month(), day = get_integer_day(), weekday = get_integer_weekday();
+  21   1        uchar hour = get_integer_hour(), minute = get_integer_minute(), second = get_integer_second(), step = 1;
+  22   1        OLED_Clear();
+  23   1        quadruple_digit_to_string(year, year_to_show);
+  24   1        double_digit_to_string(month, month_to_show);
+  25   1        double_digit_to_string(day, day_to_show);
+  26   1        double_digit_to_string(hour, hour_to_show);
+  27   1        double_digit_to_string(minute, minute_to_show);
+  28   1        double_digit_to_string(second, second_to_show);
+  29   1        OLED_ShowString(8,0,"Set Date&Time",16);
+  30   1        while(1){
+  31   2          OLED_ShowChar(104,2,Char(weekday),16);
+  32   2          if(step == 1) OLED_ShowString_Reverse(16,2,year_to_show,16);
+  33   2          else OLED_ShowString(16,2,year_to_show,16);
+  34   2          OLED_ShowChar(50,2,'/',16);
+  35   2          if(step == 2) OLED_ShowString_Reverse(56,2,month_to_show,16);
+  36   2          else OLED_ShowString(56,2,month_to_show,16);
+  37   2          OLED_ShowChar(74,2,'/',16);
+  38   2          if(step == 3) OLED_ShowString_Reverse(80,2,day_to_show,16);
+  39   2          else OLED_ShowString(80,2,day_to_show,16);
+  40   2          if(step == 4) OLED_ShowString_Reverse(32,4,hour_to_show,16);
+  41   2          else OLED_ShowString(32,4,hour_to_show,16);
+  42   2          OLED_ShowChar(50,4,':',16);
+  43   2          if(step == 5) OLED_ShowString_Reverse(56,4,minute_to_show,16);
+  44   2          else OLED_ShowString(56,4,minute_to_show,16);
+  45   2          OLED_ShowChar(74,4,':',16);
+  46   2          if(step == 6) OLED_ShowString_Reverse(80,4,second_to_show,16);
+  47   2          else OLED_ShowString(80,4,second_to_show,16);
+  48   2          if(getKey() == 1){
+  49   3            switch(step){
+  50   4              case 1: {
+  51   5                year++;
+  52   5                if(year >= 10000) year = 0;
+  53   5                quadruple_digit_to_string(year, year_to_show);
+  54   5                day = adjust_30(year, month, day);
+C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 21:33:52 PAGE 2   
 
-  55   5                weekday = calculate_week_day(year, month, day);
-  56   5                break;
-  57   5              }
-  58   4              case 2: {
-  59   5                month++;
-  60   5                month = adjust_12(month);
-  61   5                double_digit_to_string(month, month_to_show);
-  62   5                day = adjust_30(year, month, day);
-  63   5                double_digit_to_string(day, day_to_show);
-  64   5                weekday = calculate_week_day(year, month, day);
-  65   5                break;
-  66   5              }
-  67   4              case 3: {
-  68   5                day++;
-  69   5                day = adjust_30(year, month, day);
-  70   5                double_digit_to_string(day, day_to_show);
-  71   5                weekday = calculate_week_day(year, month, day);
-  72   5                break;
-  73   5              }
-  74   4              case 4: {
-  75   5                hour++;
-  76   5                hour = adjust_24(hour);
-  77   5                double_digit_to_string(hour, hour_to_show);
-  78   5                break;
-  79   5              }
-  80   4              case 5: {
-  81   5                minute++;
-  82   5                minute = adjust_60(minute);
-  83   5                double_digit_to_string(minute, minute_to_show);
-  84   5                break;
-  85   5              }
-  86   4              case 6: {
-  87   5                second++;
-  88   5                second = adjust_60(second);
-  89   5                double_digit_to_string(second, second_to_show);
-  90   5                break;
-  91   5              }
-  92   4              default: break;
-  93   4            }
-  94   3          }
-  95   2          else if(getKey() == 2){
-  96   3            step++;
-  97   3            if(step > 6) step = 1;
-  98   3          }
-  99   2          else if(getKey() == 3){
- 100   3            OLED_Clear();
- 101   3            break;
- 102   3          }
- 103   2          else if(getKey() == 4){
- 104   3            OLED_Clear();
- 105   3            write_time_to_buffer(year, month, day, hour, minute, second, weekday);
- 106   3            OLED_ShowString(32,2,"Saved!",16);
- 107   3            delay_ms(2000);
- 108   3            OLED_Clear();
- 109   3            break;
- 110   3          }
- 111   2        }
- 112   1      }
- 113          
- 114          void page_settings(){
- 115   1        uchar selection = 0;
- 116   1        OLED_Clear();
-C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 16:54:16 PAGE 3   
+  55   5                double_digit_to_string(day, day_to_show);
+  56   5                weekday = calculate_week_day(year, month, day);
+  57   5                break;
+  58   5              }
+  59   4              case 2: {
+  60   5                month++;
+  61   5                month = adjust_12(month);
+  62   5                double_digit_to_string(month, month_to_show);
+  63   5                day = adjust_30(year, month, day);
+  64   5                double_digit_to_string(day, day_to_show);
+  65   5                weekday = calculate_week_day(year, month, day);
+  66   5                break;
+  67   5              }
+  68   4              case 3: {
+  69   5                day++;
+  70   5                day = adjust_30(year, month, day);
+  71   5                double_digit_to_string(day, day_to_show);
+  72   5                weekday = calculate_week_day(year, month, day);
+  73   5                break;
+  74   5              }
+  75   4              case 4: {
+  76   5                hour++;
+  77   5                hour = adjust_24(hour);
+  78   5                double_digit_to_string(hour, hour_to_show);
+  79   5                break;
+  80   5              }
+  81   4              case 5: {
+  82   5                minute++;
+  83   5                minute = adjust_60(minute);
+  84   5                double_digit_to_string(minute, minute_to_show);
+  85   5                break;
+  86   5              }
+  87   4              case 6: {
+  88   5                second++;
+  89   5                second = adjust_60(second);
+  90   5                double_digit_to_string(second, second_to_show);
+  91   5                break;
+  92   5              }
+  93   4              default: break;
+  94   4            }
+  95   3          }
+  96   2          else if(getKey() == 2){
+  97   3            step++;
+  98   3            if(step > 6) step = 1;
+  99   3          }
+ 100   2          else if(getKey() == 3){
+ 101   3            OLED_Clear();
+ 102   3            break;
+ 103   3          }
+ 104   2          else if(getKey() == 4){
+ 105   3            OLED_Clear();
+ 106   3            write_time_to_buffer(year, month, day, hour, minute, second, weekday);
+ 107   3            OLED_ShowString(32,2,"Saved!",16);
+ 108   3            delay_ms(2000);
+ 109   3            OLED_Clear();
+ 110   3            break;
+ 111   3          }
+ 112   2        }
+ 113   1      }
+ 114          
+ 115          void page_set_notification(){
+ 116   1        char vol_to_show[] = "Volume:  ";
+C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 21:33:52 PAGE 3   
 
- 117   1        while(1){
- 118   2          OLED_ShowString(22,0,"Date&Time",16);
- 119   2          OLED_ShowString(22,2,"Volume",16);
- 120   2          OLED_ShowString(22,4,"Display",16);
- 121   2          OLED_ShowString(22,6,"About",16);
- 122   2          OLED_ShowChar(16,selection*2,'>',16);
- 123   2          if(getKey() == 1){
- 124   3            OLED_ShowChar(16,selection*2,' ',16);
- 125   3            if(selection == 0) selection = 3;
- 126   3            else selection -= 1;
- 127   3          }
- 128   2          else if(getKey() == 2){
- 129   3            OLED_ShowChar(16,selection*2,' ',16);
- 130   3            if(selection == 3) selection = 0;
- 131   3            else selection += 1;
- 132   3          }
- 133   2          else if(getKey() == 3){
- 134   3            OLED_Clear();
- 135   3            break;
+ 117   1        vol_to_show[8] = (char)(get_volume() / 5 + '0');
+ 118   1        OLED_Clear();
+ 119   1        OLED_ShowString(16,0,"Notification",16);
+ 120   1        
+ 121   1        while(1){
+ 122   2          OLED_ShowString(20,2,vol_to_show,16);
+ 123   2          if(smog_alarm_enable) OLED_ShowString(32,6,"Enabled",16);
+ 124   2          else OLED_ShowString(32,6,"Disable",16);
+ 125   2          if(getKey() == 1){
+ 126   3            stopmusic();
+ 127   3            set_volume(get_volume()+5);
+ 128   3            vol_to_show[8] = (char)(get_volume() / 5 + '0');
+ 129   3            playmusic(10);
+ 130   3          }
+ 131   2          else if(getKey() == 2){
+ 132   3            stopmusic();
+ 133   3            set_volume(get_volume()-5);
+ 134   3            vol_to_show[8] = (char)(get_volume() / 5 + '0');
+ 135   3            playmusic(10);
  136   3          }
- 137   2          else if(getKey() == 4){
- 138   3            switch(selection){
- 139   4              case 0: {page_set_date_and_time(); break;}
- 140   4              case 1: {page_set_volume(); break;}
- 141   4              case 2: {break;}
- 142   4              case 3: {break;}
- 143   4              default: break;
- 144   4            }
- 145   3          }
- 146   2        }
- 147   1      }
+ 137   2          else if(getKey() == 3){
+ 138   3            OLED_Clear();
+ 139   3            break;
+ 140   3          }
+ 141   2          else if(getKey() == 4){
+ 142   3            if(smog_alarm_enable) smog_alarm_enable = 0;
+ 143   3            else smog_alarm_enable = 1;
+ 144   3          }
+ 145   2        }
+ 146   1      }
+ 147          
+ 148          void page_settings(){
+ 149   1        uchar selection = 0;
+ 150   1        OLED_Clear();
+ 151   1        while(1){
+ 152   2          OLED_ShowString(22,0,"Date&Time",16);
+ 153   2          OLED_ShowString(22,2,"Notification",16);
+ 154   2          OLED_ShowString(22,4,"Display",16);
+ 155   2          OLED_ShowString(22,6,"About",16);
+ 156   2          OLED_ShowChar(16,selection*2,'>',16);
+ 157   2          if(getKey() == 1){
+ 158   3            OLED_ShowChar(16,selection*2,' ',16);
+ 159   3            if(selection == 0) selection = 3;
+ 160   3            else selection -= 1;
+ 161   3          }
+ 162   2          else if(getKey() == 2){
+ 163   3            OLED_ShowChar(16,selection*2,' ',16);
+ 164   3            if(selection == 3) selection = 0;
+ 165   3            else selection += 1;
+ 166   3          }
+ 167   2          else if(getKey() == 3){
+ 168   3            OLED_Clear();
+ 169   3            break;
+ 170   3          }
+ 171   2          else if(getKey() == 4){
+ 172   3            switch(selection){
+ 173   4              case 0: {page_set_date_and_time(); break;}
+ 174   4              case 1: {page_set_notification(); break;}
+ 175   4              case 2: {break;}
+ 176   4              case 3: {break;}
+ 177   4              default: break;
+ 178   4            }
+C51 COMPILER V9.60.7.0   SETTINGS                                                          05/29/2024 21:33:52 PAGE 4   
+
+ 179   3          }
+ 180   2        }
+ 181   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1117    ----
-   CONSTANT SIZE    =     72    ----
-   XDATA SIZE       =   ----      30
+   CODE SIZE        =   1293    ----
+   CONSTANT SIZE    =    104    ----
+   XDATA SIZE       =   ----      40
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

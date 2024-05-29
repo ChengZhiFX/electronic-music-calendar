@@ -24,3 +24,10 @@ void delay_us(uint us)//ÑÓÊ±º¯Êý
 char Char(char tinyint){
 	return (char)(tinyint + '0');
 }
+
+void delay_for_mq2(){
+	uchar m,n,s;
+	for(m=20;m>0;m--)
+		for(n=20;n>0;n--)
+			for(s=248;s>0;s--);
+}

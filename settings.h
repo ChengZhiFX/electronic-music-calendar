@@ -13,6 +13,7 @@
 #endif
 
 void page_set_date_and_time();
+void page_set_notification();
 void page_settings();
 
 #endif

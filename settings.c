@@ -7,6 +7,7 @@
 #include "oled.h"
 
 extern uchar time_buf[8];
+extern uchar smog_alarm_enable;
 
 void page_set_date_and_time(){
 	char year_to_show[5] = "1970";
@@ -111,12 +112,45 @@ void page_set_date_and_time(){
 	}
 }
 
+void page_set_notification(){
+	char vol_to_show[] = "Volume:  ";
+	vol_to_show[8] = (char)(get_volume() / 5 + '0');
+	OLED_Clear();
+	OLED_ShowString(16,0,"Notification",16);
+	
+	while(1){
+		OLED_ShowString(20,2,vol_to_show,16);
+		if(smog_alarm_enable) OLED_ShowString(32,6,"Enabled",16);
+		else OLED_ShowString(32,6,"Disable",16);
+		if(getKey() == 1){
+			stopmusic();
+			set_volume(get_volume()+5);
+			vol_to_show[8] = (char)(get_volume() / 5 + '0');
+			playmusic(10);
+		}
+		else if(getKey() == 2){
+			stopmusic();
+			set_volume(get_volume()-5);
+			vol_to_show[8] = (char)(get_volume() / 5 + '0');
+			playmusic(10);
+		}
+		else if(getKey() == 3){
+			OLED_Clear();
+			break;
+		}
+		else if(getKey() == 4){
+			if(smog_alarm_enable) smog_alarm_enable = 0;
+			else smog_alarm_enable = 1;
+		}
+	}
+}
+
 void page_settings(){
 	uchar selection = 0;
 	OLED_Clear();
 	while(1){
 		OLED_ShowString(22,0,"Date&Time",16);
-		OLED_ShowString(22,2,"Volume",16);
+		OLED_ShowString(22,2,"Notification",16);
 		OLED_ShowString(22,4,"Display",16);
 		OLED_ShowString(22,6,"About",16);
 		OLED_ShowChar(16,selection*2,'>',16);
@@ -137,7 +171,7 @@ void page_settings(){
 		else if(getKey() == 4){
 			switch(selection){
 				case 0: {page_set_date_and_time(); break;}
-				case 1: {page_set_volume(); break;}
+				case 1: {page_set_notification(); break;}
 				case 2: {break;}
 				case 3: {break;}
 				default: break;

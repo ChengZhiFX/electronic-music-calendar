@@ -125,10 +125,7 @@ void page_alarm(){
 }
 
 void alarm_tick_tock(){
-	if(alarm.enable){
-		if(get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute)
-			page_ring();
-	}
+	if(alarm.enable && get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute) page_ring();
 }
 
 void page_ring(){

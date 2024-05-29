@@ -72,6 +72,10 @@ void set_single_loop(uchar is_loop){
 	}
 }
 
+char get_volume(){
+	return vol;
+}
+
 void set_volume(char vol_temp){
 	char vol_H, vol_L;
 	if(vol_temp > 30) vol = 30;
@@ -115,36 +119,6 @@ void page_music(){
 			if(selection >= 10) selection = 1;
 			title[5] = (char)(selection + '0');
 			playmusic(selection);
-		}
-	}
-}
-
-void page_set_volume(){
-	char vol_to_show[] = "Volume:  ";
-	vol_to_show[8] = (char)(vol / 5 + '0');
-	OLED_Clear();
-	OLED_ShowString(16,0,"Set Volume",16);
-	while(1){
-		OLED_ShowString(20,2,vol_to_show,16);
-		if(getKey() == 1){
-			stopmusic();
-			set_volume(vol+5);
-			vol_to_show[8] = (char)(vol / 5 + '0');
-			playmusic(10);
-		}
-		else if(getKey() == 2){
-			stopmusic();
-			set_volume(vol-5);
-			vol_to_show[8] = (char)(vol / 5 + '0');
-			playmusic(10);
-		}
-		else if(getKey() == 3){
-			OLED_Clear();
-			break;
-		}
-		else if(getKey() == 4){
-			OLED_Clear();
-			break;
 		}
 	}
 }
