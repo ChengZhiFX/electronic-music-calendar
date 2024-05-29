@@ -1,0 +1,13 @@
+".\Objects\STARTUP.obj",
+".\Objects\oled.obj",
+".\Objects\main.obj",
+".\Objects\ds1302.obj",
+".\Objects\dht11.obj",
+".\Objects\keyscan.obj",
+".\Objects\mp3.obj",
+".\Objects\delay.obj",
+".\Objects\alarm.obj",
+".\Objects\settings.obj",
+".\Objects\lunar.obj" 
+TO ".\Objects\oled" 
+PRINT(".\Listings\oled.m51") RAMSIZE(256) 
