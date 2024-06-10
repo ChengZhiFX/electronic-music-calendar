@@ -10,7 +10,9 @@
 #ifndef uint 
 #define uint unsigned int
 #endif
-sbit sda = P1^0;
+
+sbit sda = P3^7;
+
 void Send( uchar addr );
 char get_volume();
 void set_volume(char vol_temp);

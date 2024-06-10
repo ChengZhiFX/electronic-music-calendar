@@ -9,6 +9,9 @@
 ".\Objects\alarm.obj",
 ".\Objects\settings.obj",
 ".\Objects\lunar.obj",
-".\Objects\mq2.obj" 
-TO ".\Objects\oled" 
-PRINT(".\Listings\oled.m51") RAMSIZE(256) 
+".\Objects\mq2.obj",
+".\Objects\hc08.obj",
+".\Objects\weather.obj",
+".\Objects\event.obj" 
+TO ".\Objects\main" 
+PRINT(".\Listings\main.m51") RAMSIZE(256) 

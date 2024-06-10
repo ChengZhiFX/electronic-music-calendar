@@ -46,7 +46,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>oled</OutputName>
+          <OutputName>main</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -125,7 +125,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>1</UseSimulator>
+            <UseSimulator>0</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -137,7 +137,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
-            <UseTarget>0</UseTarget>
+            <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -149,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>-1</TargetSelection>
+          <TargetSelection>12</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -163,7 +163,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver></Driver>
+            <Driver>BIN\STCMON51.DLL</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -435,6 +435,21 @@
               <FileName>mq2.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\mq2.c</FilePath>
+            </File>
+            <File>
+              <FileName>hc08.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hc08.c</FilePath>
+            </File>
+            <File>
+              <FileName>weather.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\weather.c</FilePath>
+            </File>
+            <File>
+              <FileName>event.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\event.c</FilePath>
             </File>
           </Files>
         </Group>

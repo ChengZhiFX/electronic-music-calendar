@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   ALARM                                                             05/29/2024 21:24:33 PAGE 1   
+C51 COMPILER V9.60.7.0   ALARM                                                             06/10/2024 16:13:32 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE ALARM
@@ -15,154 +15,173 @@ line level    source
    5          #include "delay.h"
    6          #include "mp3.h"
    7          
-   8          extern Alarm alarm;
-   9          //Alarm alarm_delay;
-  10          
-  11          void alarm_init(){
-  12   1        alarm.hour = get_integer_hour();
-  13   1        alarm.minute = get_integer_minute();
-  14   1        alarm.ringtone = 1;
-  15   1        alarm.enable = 0;
-  16   1      }
-  17          
-  18          char adjust_12(char month_num){
-  19   1        if(month_num > 12) month_num = 1;
-  20   1        return month_num;
-  21   1      }
-  22          
-  23          char adjust_30(uint year_num, char month_num, char day_num){
-  24   1        if(month_num == 2){
-  25   2          if(isLeapYear(year_num)){
-  26   3            if(day_num > 29) day_num = 1;
-  27   3          }
-  28   2          else {
-  29   3            if(day_num > 28) day_num = 1;
+   8          uchar alarm_suspend = 0;
+   9          Alarm alarm;
+  10          //Alarm alarm_delay;
+  11          
+  12          void alarm_init(){
+  13   1        alarm.hour = get_integer_hour();
+  14   1        alarm.minute = get_integer_minute();
+  15   1        alarm.ringtone = 1;
+  16   1        alarm.enable = 0;
+  17   1        alarm_suspend = 0;
+  18   1        set_volume(15);
+  19   1      }
+  20          
+  21          char adjust_12(char month_num){
+  22   1        if(month_num > 12) month_num = 1;
+  23   1        return month_num;
+  24   1      }
+  25          
+  26          char adjust_30(uint year_num, char month_num, char day_num){
+  27   1        if(month_num == 2){
+  28   2          if(isLeapYear(year_num)){
+  29   3            if(day_num > 29) day_num = 1;
   30   3          }
-  31   2        }
-  32   1        else if(month_num == 4 || month_num == 6 || month_num == 9 || month_num == 11){
-  33   2          if(day_num > 30) day_num = 1;
+  31   2          else {
+  32   3            if(day_num > 28) day_num = 1;
+  33   3          }
   34   2        }
-  35   1        else{
-  36   2          if(day_num > 31) day_num = 1;
+  35   1        else if(month_num == 4 || month_num == 6 || month_num == 9 || month_num == 11){
+  36   2          if(day_num > 30) day_num = 1;
   37   2        }
-  38   1        return day_num;
-  39   1      }
-  40          
-  41          char adjust_24(char hour_num){
-  42   1        if(hour_num >= 24) hour_num = 0;
-  43   1        return hour_num;
-  44   1      }
-  45          
-  46          char adjust_60(char minute_num){
-  47   1        if(minute_num >= 60) minute_num = 0;
-  48   1        return minute_num;
-  49   1      }
-  50          
-  51          void page_alarm(){
-  52   1        char title[] = "Alarm1";
-  53   1        char alarm_hour[3] = "00";
-  54   1        char alarm_minute[3] = "00";
-C51 COMPILER V9.60.7.0   ALARM                                                             05/29/2024 21:24:33 PAGE 2   
+  38   1        else{
+  39   2          if(day_num > 31) day_num = 1;
+  40   2        }
+  41   1        return day_num;
+  42   1      }
+  43          
+  44          char adjust_24(char hour_num){
+  45   1        if(hour_num >= 24) hour_num = 0;
+  46   1        return hour_num;
+  47   1      }
+  48          
+  49          char adjust_60(char minute_num){
+  50   1        if(minute_num >= 60) minute_num = 0;
+  51   1        return minute_num;
+  52   1      }
+  53          
+  54          void set_alarm(char hour, char minute, char music, uchar enable){
+C51 COMPILER V9.60.7.0   ALARM                                                             06/10/2024 16:13:32 PAGE 2   
 
-  55   1        char alarm_music[] = "Music ";
-  56   1        uchar step = 1;
-  57   1        Alarm alarm_original;
-  58   1        OLED_Clear();
-  59   1        alarm_original = alarm;
-  60   1        double_digit_to_string(alarm.hour, alarm_hour);
-  61   1        double_digit_to_string(alarm.minute, alarm_minute);
-  62   1        alarm_music[5] = Char(alarm.ringtone);
-  63   1        while(1){
-  64   2          OLED_ShowString(32,0,title,16);
-  65   2          if(step == 1) OLED_ShowString_Reverse(32,2,alarm_hour,16);
-  66   2          else OLED_ShowString(32,2,alarm_hour,16);
-  67   2          OLED_ShowChar(50,2,':',16);
-  68   2          if(step == 2) OLED_ShowString_Reverse(56,2,alarm_minute,16);
-  69   2          else OLED_ShowString(56,2,alarm_minute,16);
-  70   2          if(step == 3) OLED_ShowString_Reverse(32,4,alarm_music,16);
-  71   2          else OLED_ShowString(32,4,alarm_music,16);
-  72   2          if(step == 4){
-  73   3            if(alarm.enable) OLED_ShowString_Reverse(32,6,"Enabled",16);
-  74   3            else OLED_ShowString_Reverse(32,6,"Disable",16);
-  75   3          }
-  76   2          else{
-  77   3            if(alarm.enable) OLED_ShowString(32,6,"Enabled",16);
-  78   3            else OLED_ShowString(32,6,"Disable",16);
-  79   3          }
-  80   2          if(getKey() == 1){
-  81   3            switch(step){
-  82   4              case 1: {
-  83   5                alarm.hour++;
-  84   5                alarm.hour = adjust_24(alarm.hour);
-  85   5                double_digit_to_string(alarm.hour, alarm_hour);
-  86   5                break;
-  87   5              }
-  88   4              case 2: {
-  89   5                alarm.minute++;
-  90   5                alarm.minute = adjust_60(alarm.minute);
-  91   5                double_digit_to_string(alarm.minute, alarm_minute);
-  92   5                break;
-  93   5              }
-  94   4              case 3: {
-  95   5                alarm.ringtone++;
-  96   5                if(alarm.ringtone >= 10) alarm.ringtone = 1;
-  97   5                alarm_music[5] = Char(alarm.ringtone);
-  98   5                break;
-  99   5              }
- 100   4              case 4: {
- 101   5                if(alarm.enable) alarm.enable = 0;
- 102   5                else alarm.enable = 1;
+  55   1        alarm.hour = hour;
+  56   1        alarm.minute = minute;
+  57   1        alarm.ringtone = music;
+  58   1        alarm.enable = enable;
+  59   1        alarm_suspend = 0;
+  60   1      }
+  61          
+  62          void page_alarm(){
+  63   1        char title[] = "Alarm1";
+  64   1        char alarm_hour[3] = "00";
+  65   1        char alarm_minute[3] = "00";
+  66   1        char alarm_music[] = "Music ";
+  67   1        uchar step = 1;
+  68   1        Alarm alarm_original;
+  69   1        OLED_Clear();
+  70   1        alarm_original = alarm;
+  71   1        double_digit_to_string(alarm.hour, alarm_hour);
+  72   1        double_digit_to_string(alarm.minute, alarm_minute);
+  73   1        alarm_music[5] = Char(alarm.ringtone);
+  74   1        while(1){
+  75   2          OLED_ShowString(32,0,title,16);
+  76   2          if(step == 1) OLED_ShowString_Reverse(32,2,alarm_hour,16);
+  77   2          else OLED_ShowString(32,2,alarm_hour,16);
+  78   2          OLED_ShowChar(48,2,':',16);
+  79   2          if(step == 2) OLED_ShowString_Reverse(56,2,alarm_minute,16);
+  80   2          else OLED_ShowString(56,2,alarm_minute,16);
+  81   2          if(step == 3) OLED_ShowString_Reverse(32,4,alarm_music,16);
+  82   2          else OLED_ShowString(32,4,alarm_music,16);
+  83   2          if(step == 4){
+  84   3            if(alarm.enable) OLED_ShowString_Reverse(32,6,"Enabled",16);
+  85   3            else OLED_ShowString_Reverse(32,6,"Disable",16);
+  86   3          }
+  87   2          else{
+  88   3            if(alarm.enable) OLED_ShowString(32,6,"Enabled",16);
+  89   3            else OLED_ShowString(32,6,"Disable",16);
+  90   3          }
+  91   2          if(getKey() == 1){
+  92   3            switch(step){
+  93   4              case 1: {
+  94   5                alarm.hour++;
+  95   5                alarm.hour = adjust_24(alarm.hour);
+  96   5                double_digit_to_string(alarm.hour, alarm_hour);
+  97   5                break;
+  98   5              }
+  99   4              case 2: {
+ 100   5                alarm.minute++;
+ 101   5                alarm.minute = adjust_60(alarm.minute);
+ 102   5                double_digit_to_string(alarm.minute, alarm_minute);
  103   5                break;
  104   5              }
- 105   4              default: break;
- 106   4            }
- 107   3          }
- 108   2          else if(getKey() == 2){
- 109   3            step++;
- 110   3            if(step > 4) step = 1;
- 111   3          }
- 112   2          else if(getKey() == 3){
- 113   3            OLED_Clear();
- 114   3            alarm = alarm_original;
- 115   3            break;
- 116   3          }
-C51 COMPILER V9.60.7.0   ALARM                                                             05/29/2024 21:24:33 PAGE 3   
+ 105   4              case 3: {
+ 106   5                alarm.ringtone++;
+ 107   5                if(alarm.ringtone >= 10) alarm.ringtone = 1;
+ 108   5                alarm_music[5] = Char(alarm.ringtone);
+ 109   5                break;
+ 110   5              }
+ 111   4              case 4: {
+ 112   5                if(alarm.enable) alarm.enable = 0;
+ 113   5                else alarm.enable = 1;
+ 114   5                break;
+ 115   5              }
+ 116   4              default: break;
+C51 COMPILER V9.60.7.0   ALARM                                                             06/10/2024 16:13:32 PAGE 3   
 
- 117   2          else if(getKey() == 4){
- 118   3            OLED_Clear();
- 119   3            OLED_ShowString(32,2,"Saved!",16);
- 120   3            delay_ms(2000);
- 121   3            OLED_Clear();
- 122   3            break;
- 123   3          }
- 124   2        }
- 125   1      }
- 126          
- 127          void alarm_tick_tock(){
- 128   1        if(alarm.enable && get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute) page_ring();
- 129   1      }
- 130          
- 131          void page_ring(){
- 132   1        OLED_Clear();
- 133   1        OLED_ShowString(0,2,"Alarm going off",16);
- 134   1        set_single_loop(1);
- 135   1        playmusic(alarm.ringtone);
- 136   1        while(1){
- 137   2          if(getKey()){
- 138   3            alarm.enable = 0;
- 139   3            stopmusic();
- 140   3            set_single_loop(0);
- 141   3            OLED_Clear();
- 142   3            break;
+ 117   4            }
+ 118   3          }
+ 119   2          else if(getKey() == 2){
+ 120   3            step++;
+ 121   3            if(step > 4) step = 1;
+ 122   3          }
+ 123   2          else if(getKey() == 3){
+ 124   3            OLED_Clear();
+ 125   3            alarm = alarm_original;
+ 126   3            break;
+ 127   3          }
+ 128   2          else if(getKey() == 4){
+ 129   3            OLED_Clear();
+ 130   3            alarm_suspend = 0;
+ 131   3            OLED_ShowString(32,2,"Saved!",16);
+ 132   3            delay_ms(2000);
+ 133   3            OLED_Clear();
+ 134   3            break;
+ 135   3          }
+ 136   2        }
+ 137   1      }
+ 138          
+ 139          void alarm_tick_tock(){
+ 140   1        if(alarm.enable){
+ 141   2          if(get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute){
+ 142   3            if(!alarm_suspend) page_ring();
  143   3          }
- 144   2        }
- 145   1      }
+ 144   2          else{
+ 145   3            if(alarm_suspend) alarm_suspend = 0;
+ 146   3          }
+ 147   2        }
+ 148   1      }
+ 149          
+ 150          void page_ring(){
+ 151   1        OLED_Clear();
+ 152   1        OLED_ShowString(0,2,"Alarm going off",16);
+ 153   1        set_single_loop(1);
+ 154   1        playmusic(alarm.ringtone);
+ 155   1        while(1){
+ 156   2          if(getKey() || get_integer_minute() == alarm.minute + 3){
+ 157   3            stopmusic();
+ 158   3            set_single_loop(0);
+ 159   3            alarm_suspend = 1;
+ 160   3            OLED_Clear();
+ 161   3            break;
+ 162   3          }
+ 163   2        }
+ 164   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    808    ----
+   CODE SIZE        =    890    ----
    CONSTANT SIZE    =     59    ----
-   XDATA SIZE       =   ----      29
+   XDATA SIZE       =      5      33
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MQ2                                                               05/29/2024 21:24:33 PAGE 1   
+C51 COMPILER V9.60.7.0   MQ2                                                               06/08/2024 17:18:22 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MQ2
@@ -13,57 +13,59 @@ line level    source
    3          #include "mp3.h"
    4          #include "oled.h"
    5          #include "keyscan.h"
-   6          
-   7          uchar smog_alarm_enable = 1;
-   8          uchar smog_alarm_suspend = 0;
-   9          
-  10          uchar isSmoking(){
-  11   1        if(mq2 == 0){
-  12   2          delay_for_mq2();
-  13   2          if(mq2 == 0) return 1;
-  14   2        }
-  15   1        return 0;
-  16   1      }
-  17          
-  18          void page_smog_alarm(){
-  19   1        char vol_init;
-  20   1        OLED_Clear();
-  21   1        OLED_ShowString(0,2,"Smog Detected!",16);
-  22   1        vol_init = get_volume();
-  23   1        set_volume(30);
-  24   1        set_single_loop(1);
-  25   1        playmusic(19);
-  26   1        while(1){
-  27   2          if(getKey()){
-  28   3            stopmusic();
-  29   3            set_single_loop(0);
-  30   3            set_volume(vol_init);
-  31   3            smog_alarm_suspend = 1;
-  32   3            OLED_Clear();
-  33   3            break;
-  34   3          }
-  35   2        }
-  36   1      }
-  37          
-  38          void mq2_tick_tock(){
-  39   1        if(smog_alarm_enable){
-  40   2          if(isSmoking()){
-  41   3            if(!smog_alarm_suspend) page_smog_alarm();
-  42   3          }
-  43   2          else{
-  44   3            if(smog_alarm_suspend) smog_alarm_suspend = 0;
-  45   3          }
-  46   2        }
-  47   1      }
+   6          #include "hc08.h"
+   7          
+   8          uchar smog_alarm_enable = 1;
+   9          uchar smog_alarm_suspend = 0;
+  10          
+  11          uchar isSmoking(){
+  12   1        if(mq2 == 0){
+  13   2          delay_for_mq2();
+  14   2          if(mq2 == 0) return 1;
+  15   2        }
+  16   1        return 0;
+  17   1      }
+  18          
+  19          void page_smog_alarm(){
+  20   1        char vol_init;
+  21   1        OLED_Clear();
+  22   1        OLED_ShowString(0,2,"Smog Detected!",16);
+  23   1        vol_init = get_volume();
+  24   1        set_volume(30);
+  25   1        sendData("FIRE");
+  26   1        set_single_loop(1);
+  27   1        playmusic(19);
+  28   1        while(1){
+  29   2          if(getKey() || !isSmoking()){
+  30   3            stopmusic();
+  31   3            set_single_loop(0);
+  32   3            set_volume(vol_init);
+  33   3            smog_alarm_suspend = 1;
+  34   3            OLED_Clear();
+  35   3            break;
+  36   3          }
+  37   2        }
+  38   1      }
+  39          
+  40          void mq2_tick_tock(){
+  41   1        if(smog_alarm_enable){
+  42   2          if(isSmoking()){
+  43   3            if(!smog_alarm_suspend) page_smog_alarm();
+  44   3          }
+  45   2          else{
+  46   3            if(smog_alarm_suspend) smog_alarm_suspend = 0;
+  47   3          }
+  48   2        }
+  49   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    121    ----
-   CONSTANT SIZE    =     15    ----
+   CODE SIZE        =    136    ----
+   CONSTANT SIZE    =     20    ----
+C51 COMPILER V9.60.7.0   MQ2                                                               06/08/2024 17:18:22 PAGE 2   
+
    XDATA SIZE       =      2       1
    PDATA SIZE       =   ----    ----
-C51 COMPILER V9.60.7.0   MQ2                                                               05/29/2024 21:24:33 PAGE 2   
-
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

@@ -26,6 +26,7 @@ char adjust_30(uint year_num, char month_num, char day_num);
 char adjust_24(char hour_num);
 char adjust_60(char minute_num);
 void alarm_init();
+void set_alarm(char hour, char minute, char music, uchar enable);
 void page_alarm();
 void alarm_tick_tock();
 void page_ring();

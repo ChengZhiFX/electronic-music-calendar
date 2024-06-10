@@ -1,4 +1,8 @@
 #include <dht11.h>//头文件
+#include "oled.h"
+
+Sensor sensor;
+char dht11_to_show[8];
 
 //写时序的函数
 void DHT11_delay_us(uchar n)
@@ -69,3 +73,15 @@ void getdata(uchar *sensordata) {    //接收40位的数据
 	}
 }
 
+void print_temp_and_hum(uchar x, uchar y){
+	getdata((uchar *)&sensor);
+	dht11_to_show[0] = (char)(sensor.temper / 10 + '0');
+	dht11_to_show[1] = (char)(sensor.temper % 10 + '0');
+	dht11_to_show[2] = 'C';
+	dht11_to_show[3] = ' ';
+	dht11_to_show[4] = (char)(sensor.humid / 10 + '0');
+	dht11_to_show[5] = (char)(sensor.humid % 10 + '0');
+	dht11_to_show[6] = '%';
+	dht11_to_show[7] = 0;
+	OLED_ShowString(x,y, dht11_to_show,12);
+}

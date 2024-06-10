@@ -1,0 +1,145 @@
+C51 COMPILER V9.60.7.0   WEATHER                                                           06/10/2024 16:13:32 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE WEATHER
+OBJECT MODULE PLACED IN .\Objects\weather.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE weather.c LARGE WARNINGLEVEL(1) OPTIMIZE(9,SIZE) BROWSE DEBUG OBJECTEXTE
+                    -ND PRINT(.\Listings\weather.lst) TABS(2) OBJECT(.\Objects\weather.obj)
+
+line level    source
+
+   1          #include "weather.h"
+   2          #include "oled.h"
+   3          #include "keyscan.h"
+   4          #include "delay.h"
+   5          #include "ds1302.h"
+   6          
+   7          Weather weather[4];
+   8          
+   9          void weather_init(){
+  10   1        uchar i;
+  11   1        for(i=0;i<4;i++){
+  12   2          weather[i].month = 0;
+  13   2          weather[i].day = 0;
+  14   2          weather[i].dayWeather = 0;
+  15   2          weather[i].dayTemp = 0;
+  16   2          weather[i].nightWeather = 0;
+  17   2          weather[i].nightTemp = 0;
+  18   2        }
+  19   1      }
+  20          
+  21          void set_weather_from_str(uchar num, char weather_str[13]){
+  22   1        weather[num].month = char_to_double_digit(weather_str[0], weather_str[1]);
+  23   1        weather[num].day = char_to_double_digit(weather_str[2], weather_str[3]);
+  24   1        weather[num].dayWeather = char_to_double_digit(weather_str[4], weather_str[5]);
+  25   1        weather[num].dayTemp = char_to_double_digit(weather_str[6], weather_str[7]);
+  26   1        weather[num].nightWeather = char_to_double_digit(weather_str[8], weather_str[9]);
+  27   1        weather[num].nightTemp = char_to_double_digit(weather_str[10], weather_str[11]);
+  28   1      }
+  29          
+  30          void page_weather_error(){
+  31   1        OLED_Clear();
+  32   1        OLED_ShowString(0,0,"Waiting for App",16);
+  33   1        OLED_ShowString(0,4,"Press any key",16);
+  34   1        OLED_ShowString(0,6,"to cancel",16);
+  35   1        while(1){
+  36   2          if(weather[0].month != 0 && weather[0].day != 0) break;
+  37   2          else if(getKey()){
+  38   3            OLED_Clear();
+  39   3            break;
+  40   3          }
+  41   2        }
+  42   1      }
+  43          
+  44          void print_weather_all(uchar page){
+  45   1        uchar dayWeather_str[2] = {0,1}, nightWeather_str[2] = {0,1};
+  46   1        char date_to_show[] = "--/--", dayTemp_to_show[] = "--C", nightTemp_to_show[] = "--C";
+  47   1        date_to_show[0] = Char(weather[page-1].month / 10);
+  48   1        date_to_show[1] = Char(weather[page-1].month % 10);
+  49   1        date_to_show[3] = Char(weather[page-1].day / 10);
+  50   1        date_to_show[4] = Char(weather[page-1].day % 10);
+  51   1        dayWeather_str[0] = weather[page-1].dayWeather*2;
+  52   1        dayWeather_str[1] = weather[page-1].dayWeather*2 + 1;
+  53   1        nightWeather_str[0] = weather[page-1].nightWeather*2;
+  54   1        nightWeather_str[1] = weather[page-1].nightWeather*2 + 1;
+C51 COMPILER V9.60.7.0   WEATHER                                                           06/10/2024 16:13:32 PAGE 2   
+
+  55   1        dayTemp_to_show[0] = Char(weather[page-1].dayTemp / 10);
+  56   1        dayTemp_to_show[1] = Char(weather[page-1].dayTemp % 10);
+  57   1        nightTemp_to_show[0] = Char(weather[page-1].nightTemp / 10);
+  58   1        nightTemp_to_show[1] = Char(weather[page-1].nightTemp % 10);
+  59   1        OLED_ShowString(32,0,date_to_show,16);
+  60   1        OLED_ShowString(0,2,"  Day:",16);
+  61   1        OLED_ShowChineseString(48,2,3,dayWeather_str,2);
+  62   1        OLED_ShowString(80,2,dayTemp_to_show,16);
+  63   1        OLED_ShowString(0,4,"Night:",16);
+  64   1        OLED_ShowChineseString(48,4,3,nightWeather_str,2);
+  65   1        OLED_ShowString(80,4,nightTemp_to_show,16);
+  66   1      }
+  67          
+  68          void print_weather_base_now(uchar x, uchar y){
+  69   1        uchar i, weather_str[2] = {0,0};
+  70   1        for(i=0;i<4;i++){
+  71   2          if(get_integer_month() == weather[i].month && get_integer_day() == weather[i].day){
+  72   3            if(get_integer_hour() < 6){
+  73   4              if(i-1>=0 && i-1<4){
+  74   5                weather_str[0] = weather[i-1].nightWeather*2;
+  75   5                weather_str[1] = weather[i-1].nightWeather*2 + 1;
+  76   5              }
+  77   4            }
+  78   3            else if(get_integer_hour() >= 18){
+  79   4              weather_str[0] = weather[i].nightWeather*2;
+  80   4              weather_str[1] = weather[i].nightWeather*2 + 1;
+  81   4            }
+  82   3            else{
+  83   4              weather_str[0] = weather[i].dayWeather*2;
+  84   4              weather_str[1] = weather[i].dayWeather*2 + 1;
+  85   4            }
+  86   3            OLED_ShowChineseString(x,y,3,weather_str,2);
+  87   3          }
+  88   2        }
+  89   1      }
+  90          
+  91          void page_weather_all(){
+  92   1        uchar page = 1;
+  93   1        if(weather[0].month == 0 && weather[0].day == 0){
+  94   2          page_weather_error();
+  95   2          if(weather[0].month == 0 && weather[0].day == 0) return;
+  96   2        }
+  97   1        OLED_Clear();
+  98   1        while(1){
+  99   2          print_weather_all(page);
+ 100   2          if(getKey() == 1){
+ 101   3            page--;
+ 102   3            if(page < 1) page = 1;
+ 103   3          }
+ 104   2          else if(getKey() == 2){
+ 105   3            page++;
+ 106   3            if(page > 4) page = 4;
+ 107   3          }
+ 108   2          else if(getKey() == 3){
+ 109   3            OLED_Clear();
+ 110   3            break;
+ 111   3          }
+ 112   2          else if(getKey() == 4){
+ 113   3            OLED_Clear();
+ 114   3            break;
+ 115   3          }
+ 116   2        }
+C51 COMPILER V9.60.7.0   WEATHER                                                           06/10/2024 16:13:32 PAGE 3   
+
+ 117   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1083    ----
+   CONSTANT SIZE    =     74    ----
+   XDATA SIZE       =     24      29
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -13,9 +13,9 @@
 #define uint  unsigned int
 #endif
 
-sbit RST=P1^3;
-sbit IO=P1^2;
-sbit SCK=P1^1;
+sbit RST=P3^6;
+sbit IO=P3^5;
+sbit SCK=P3^4;
 //DS1302地址定义
 #define ds1302_sec_add			0x80		//秒数据地址
 #define ds1302_min_add			0x82		//分数据地址
@@ -45,9 +45,10 @@ void ds1302_write_time(void);
 void ds1302_read_time(void);
 
 void print_time_now(uchar x, uchar y, uchar hour_type);
+void print_date_any_time(uchar x, uchar y, uint year, uchar month, uchar day);
 void print_date_now(uchar x, uchar y);
-void print_lunar_now(uchar x,uchar y);
-void print_solar_term_now(uchar x,uchar y);
+void print_lunar_and_term_now(uchar x,uchar y);
+void print_lunar_and_term_any_time(uchar x,uchar y, uint year, uchar month, uchar day);
 void read_discrete_time();
 
 char isLeapYear(uint year);
@@ -59,6 +60,8 @@ uchar get_integer_minute();
 uchar get_integer_second();
 uchar get_integer_weekday();
 uchar calculate_week_day(uint year, uchar month, uchar day);
-void write_time_to_buffer(uint year, uchar month, uchar day, uchar hour, uchar minute, uchar second, uchar weekday);
+void write_date_and_time(uint year, uchar month, uchar day, uchar hour, uchar minute, uchar second);
+void write_date(uint year, uchar month, uchar day);
+void write_time(uchar hour, uchar minute, uchar second);
 
 #endif

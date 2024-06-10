@@ -5,7 +5,8 @@
 #include "delay.h"
 #include "mp3.h"
 
-extern Alarm alarm;
+uchar alarm_suspend = 0;
+Alarm alarm;
 //Alarm alarm_delay;
 
 void alarm_init(){
@@ -13,6 +14,8 @@ void alarm_init(){
 	alarm.minute = get_integer_minute();
 	alarm.ringtone = 1;
 	alarm.enable = 0;
+	alarm_suspend = 0;
+	set_volume(15);
 }
 
 char adjust_12(char month_num){
@@ -48,6 +51,14 @@ char adjust_60(char minute_num){
 	return minute_num;
 }
 
+void set_alarm(char hour, char minute, char music, uchar enable){
+	alarm.hour = hour;
+	alarm.minute = minute;
+	alarm.ringtone = music;
+	alarm.enable = enable;
+	alarm_suspend = 0;
+}
+
 void page_alarm(){
 	char title[] = "Alarm1";
 	char alarm_hour[3] = "00";
@@ -64,7 +75,7 @@ void page_alarm(){
 		OLED_ShowString(32,0,title,16);
 		if(step == 1) OLED_ShowString_Reverse(32,2,alarm_hour,16);
 		else OLED_ShowString(32,2,alarm_hour,16);
-		OLED_ShowChar(50,2,':',16);
+		OLED_ShowChar(48,2,':',16);
 		if(step == 2) OLED_ShowString_Reverse(56,2,alarm_minute,16);
 		else OLED_ShowString(56,2,alarm_minute,16);
 		if(step == 3) OLED_ShowString_Reverse(32,4,alarm_music,16);
@@ -116,6 +127,7 @@ void page_alarm(){
 		}
 		else if(getKey() == 4){
 			OLED_Clear();
+			alarm_suspend = 0;
 			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();
@@ -125,7 +137,14 @@ void page_alarm(){
 }
 
 void alarm_tick_tock(){
-	if(alarm.enable && get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute) page_ring();
+	if(alarm.enable){
+		if(get_integer_hour() == alarm.hour && get_integer_minute() == alarm.minute){
+			if(!alarm_suspend) page_ring();
+		}
+		else{
+			if(alarm_suspend) alarm_suspend = 0;
+		}
+	}
 }
 
 void page_ring(){
@@ -134,10 +153,10 @@ void page_ring(){
 	set_single_loop(1);
 	playmusic(alarm.ringtone);
 	while(1){
-		if(getKey()){
-			alarm.enable = 0;
+		if(getKey() || get_integer_minute() == alarm.minute + 3){
 			stopmusic();
 			set_single_loop(0);
+			alarm_suspend = 1;
 			OLED_Clear();
 			break;
 		}

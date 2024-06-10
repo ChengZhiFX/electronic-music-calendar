@@ -1,0 +1,247 @@
+C51 COMPILER V9.60.7.0   HC08                                                              06/10/2024 16:35:07 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE HC08
+OBJECT MODULE PLACED IN .\Objects\hc08.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE hc08.c LARGE WARNINGLEVEL(1) OPTIMIZE(9,SIZE) BROWSE DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\hc08.lst) TABS(2) OBJECT(.\Objects\hc08.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include<intrins.h>
+   3          #include <string.h>
+   4          #include "hc08.h"
+   5          #include "delay.h"
+   6          #include "oled.h"
+   7          #include "ds1302.h"
+   8          #include "alarm.h"
+   9          #include "mp3.h"
+  10          #include "weather.h"
+  11          #include "event.h"
+  12          
+  13          uchar receive_data, flag=0, index=0;
+  14          //uchar send_buffer[36] = "广州汇承信息科技有限公司www.hc01.com";
+  15          uchar rcv_buffer[20];
+  16          
+  17          void switch_hour_type();
+  18          
+  19          void set_date_via_bt(){
+  20   1        if(receive_data!='&'){
+  21   2          if(receive_data=='?'){
+  22   3            write_date(char_to_quadruple_digit(rcv_buffer[0],rcv_buffer[1],rcv_buffer[2],rcv_buffer[3]), char_to_do
+             -uble_digit(rcv_buffer[4],rcv_buffer[5]), char_to_double_digit(rcv_buffer[6],rcv_buffer[7]));
+  23   3            flag = 0;
+  24   3            index = 0;
+  25   3            return;
+  26   3          }
+  27   2          else rcv_buffer[index-1] = receive_data;
+  28   2        }
+  29   1        index++;
+  30   1      }
+  31          
+  32          void set_time_via_bt(){
+  33   1        if(receive_data!='@'){
+  34   2          if(receive_data=='?'){
+  35   3            write_time(char_to_double_digit(rcv_buffer[0],rcv_buffer[1]), char_to_double_digit(rcv_buffer[2],rcv_bu
+             -ffer[3]), get_integer_second());
+  36   3            flag = 0;
+  37   3            index = 0;
+  38   3            return;
+  39   3          }
+  40   2          else rcv_buffer[index-1] = receive_data;
+  41   2        }
+  42   1        index++;
+  43   1      }
+  44          
+  45          void set_alarm_via_bt(){
+  46   1        if(receive_data!='%'){
+  47   2          if(receive_data=='?'){
+  48   3            set_alarm(char_to_double_digit(rcv_buffer[0],rcv_buffer[1]), char_to_double_digit(rcv_buffer[2],rcv_buf
+             -fer[3]), Tinyint(rcv_buffer[4]), Tinyint(rcv_buffer[5]));
+  49   3            flag = 0;
+  50   3            index = 0;
+  51   3            return;
+C51 COMPILER V9.60.7.0   HC08                                                              06/10/2024 16:35:07 PAGE 2   
+
+  52   3          }
+  53   2          else rcv_buffer[index-1] = receive_data;
+  54   2        }
+  55   1        index++;
+  56   1      }
+  57          
+  58          void set_volume_via_bt(){
+  59   1        if(receive_data!='#'){
+  60   2          if(receive_data=='?'){
+  61   3            set_volume(5*Tinyint(rcv_buffer[0]));
+  62   3            flag = 0;
+  63   3            index = 0;
+  64   3            return;
+  65   3          }
+  66   2          else rcv_buffer[index-1] = receive_data;
+  67   2        }
+  68   1        index++;
+  69   1      }
+  70          
+  71          void rcv_weather_all_via_bt(){
+  72   1        static uchar step=0;
+  73   1        char weather_str[13];
+  74   1        if(receive_data!='^'){
+  75   2          if(receive_data=='?'){
+  76   3            strncpy(weather_str, rcv_buffer, 12);
+  77   3            weather_str[12] = 0;
+  78   3            set_weather_from_str(step, weather_str);
+  79   3            flag = 0;
+  80   3            index = 0;
+  81   3            step = 0;
+  82   3            return;
+  83   3          }
+  84   2          else if(receive_data=='.'){
+  85   3            strncpy(weather_str, rcv_buffer, 12);
+  86   3            weather_str[12] = 0;
+  87   3            set_weather_from_str(step, weather_str);
+  88   3            flag = 0;
+  89   3            index = 0;
+  90   3            step++;
+  91   3            sendData("WeatherReady");
+  92   3            return;
+  93   3          }
+  94   2          else rcv_buffer[index-1] = receive_data;
+  95   2        }
+  96   1        index++;
+  97   1      }
+  98          
+  99          void set_event_via_bt(){
+ 100   1        if(receive_data!='`'){
+ 101   2          if(receive_data=='}'){
+ 102   3            rcv_buffer[index-1] = 0;
+ 103   3            set_event_content(rcv_buffer);
+ 104   3            flag = 0;
+ 105   3            index = 0;
+ 106   3            return;
+ 107   3          }
+ 108   2          else if(receive_data=='{'){
+ 109   3            set_event_control(char_to_quadruple_digit(rcv_buffer[0],rcv_buffer[1],rcv_buffer[2],rcv_buffer[3]), cha
+             -r_to_double_digit(rcv_buffer[4],rcv_buffer[5]), char_to_double_digit(rcv_buffer[6],rcv_buffer[7]), Tinyint(rcv_buffer[8]
+             -));
+ 110   3            flag = 0;
+ 111   3            index = 0;
+C51 COMPILER V9.60.7.0   HC08                                                              06/10/2024 16:35:07 PAGE 3   
+
+ 112   3            sendData("EventReady");
+ 113   3            return;
+ 114   3          }
+ 115   2          else rcv_buffer[index-1] = receive_data;
+ 116   2        }
+ 117   1        index++;
+ 118   1      }
+ 119          
+ 120          /********************************************************************
+ 121          * 名称 : Com_Int()
+ 122          * 功能 : 串口中断子函数
+ 123          * 输入 : 无 * 输出 : 无
+ 124          ***********************************************************************/
+ 125          void Com_Int(void) interrupt 4 {
+ 126   1        uchar i;
+ 127   1      //  uchar receive_data;
+ 128   1      
+ 129   1        EA = 0;
+ 130   1        if(RI == 1){//当硬件接收到一个数据时，RI会置位
+ 131   2          RI = 0;
+ 132   2          LED = 0;
+ 133   2          receive_data = SBUF;//接收到的数据
+ 134   2          if(flag == 0){
+ 135   3            flag = receive_data;
+ 136   3            index = 0;
+ 137   3            strcpy(rcv_buffer, "");
+ 138   3          }
+ 139   2          switch(flag){
+ 140   3            case 0x2A:{
+ 141   4              switch_hour_type();
+ 142   4              flag=0;
+ 143   4              index=0;
+ 144   4              break;
+ 145   4            }
+ 146   3            case '&':{
+ 147   4              set_date_via_bt();
+ 148   4              break;
+ 149   4            }
+ 150   3            case '@':{
+ 151   4              set_time_via_bt();
+ 152   4              break;
+ 153   4            }
+ 154   3            case '%':{
+ 155   4              set_alarm_via_bt();
+ 156   4              break;
+ 157   4            }
+ 158   3            case '#':{
+ 159   4              set_volume_via_bt();
+ 160   4              break;
+ 161   4            }
+ 162   3            case '^':{
+ 163   4              rcv_weather_all_via_bt();
+ 164   4              break;
+ 165   4            }
+ 166   3            case '`':{
+ 167   4              set_event_via_bt();
+ 168   4              break;
+ 169   4            }
+ 170   3            default:{
+ 171   4              break;
+ 172   4            }
+ 173   3          }
+C51 COMPILER V9.60.7.0   HC08                                                              06/10/2024 16:35:07 PAGE 4   
+
+ 174   2          LED = 1;
+ 175   2        }
+ 176   1      //    for(i=0; i<36; i++)
+ 177   1      //    {
+ 178   1      //      SBUF = send_buffer[i];   //将要发送的数据放入到发送寄存器
+ 179   1      //      while(!TI);       //等待发送数据完成
+ 180   1      //      TI=0;             //清除发送完成标志位
+ 181   1      //      delay_ms(1);
+ 182   1      //    }
+ 183   1        EA = 1;
+ 184   1      }
+ 185          
+ 186          void sendData(uchar *datas)
+ 187          { uchar i=0;
+ 188   1        while(datas[i]!='\0')
+ 189   1          { SBUF=datas[i];      //???????????????
+ 190   2            while(!TI);       //????????
+ 191   2            TI=0;
+ 192   2          i++;}       //?????????
+ 193   1      }
+ 194          
+ 195          /*******************************************************************************
+ 196          * 函 数 名       : UsartConfiguration()
+ 197          * 函数功能       : 设置串口
+ 198          * 输    入       : 无
+ 199          * 输    出       : 无
+ 200          *******************************************************************************/
+ 201          
+ 202          void UsartConfiguration()
+ 203          { 
+ 204   1        SCON=0X50;      //设置为工作方式1,8位数据，可变波特率
+ 205   1        TMOD=0X20;      //设置计数器工作方式2
+ 206   1        PCON=0X00;      //波特率不加倍
+ 207   1        TH1=0XFd;       //计数器初始值设置，9600@11.0592MHz
+ 208   1        TL1=0XFd;
+ 209   1        TR1=1;          //打开计数器
+ 210   1        ES = 1;         //开串口中断
+ 211   1        EA = 1;         //开总中断
+ 212   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    787    ----
+   CONSTANT SIZE    =     25    ----
+   XDATA SIZE       =     24      17
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -3,6 +3,7 @@
 #include "mp3.h"
 #include "oled.h"
 #include "keyscan.h"
+#include "hc08.h"
 
 uchar smog_alarm_enable = 1;
 uchar smog_alarm_suspend = 0;
@@ -21,10 +22,11 @@ void page_smog_alarm(){
 	OLED_ShowString(0,2,"Smog Detected!",16);
 	vol_init = get_volume();
 	set_volume(30);
+	sendData("FIRE");
 	set_single_loop(1);
 	playmusic(19);
 	while(1){
-		if(getKey()){
+		if(getKey() || !isSmoking()){
 			stopmusic();
 			set_single_loop(0);
 			set_volume(vol_init);

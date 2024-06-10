@@ -11,7 +11,8 @@
 #define uint unsigned int
 #endif
 
-sbit mq2 = P3^7;
+sbit mq2 = P1^2;
+
 uchar isSmoking();
 void page_smog_alarm();
 void mq2_tick_tock();

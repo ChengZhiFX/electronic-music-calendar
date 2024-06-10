@@ -11,8 +11,8 @@
 #define OLED_MODE 0
 
 //I2C管脚定义
-sbit OLED_SCL=P0^0; //D0（SCLK） 时钟
-sbit OLED_SDIN=P0^1;//D1（MOSI） 数据
+sbit OLED_SCL=P1^7; //D0（SCLK） 时钟
+sbit OLED_SDIN=P1^6;//D1（MOSI） 数据
 
 
 #define OLED_CS_Clr()  OLED_CS=0
@@ -70,8 +70,5 @@ void Write_IIC_Command(uchar IIC_Command);
 void Write_IIC_Data(uchar IIC_Data);
 void Write_IIC_Byte(uchar IIC_Byte);
 void IIC_Wait_Ack();
-
-void quadruple_digit_to_string(uint num, char str[5]);
-void double_digit_to_string(char num, char str[3]);
 
 #endif

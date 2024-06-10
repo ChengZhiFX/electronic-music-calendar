@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   LUNAR                                                             05/29/2024 17:18:41 PAGE 1   
+C51 COMPILER V9.60.7.0   LUNAR                                                             05/30/2024 17:52:55 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE LUNAR
@@ -62,7 +62,7 @@ line level    source
   46                 0x95,0xB4,0xA5,0xB4,0xA5,0xA6,0x97,0x87,0x87,0x78,0x87,0x96,     //2028   
   47                 0xA5,0xC3,0xA5,0xB5,0xA6,0xA6,0x87,0x88,0x88,0x78,0x87,0x86,     //2029   
   48                 0xA5,0xB3,0xA5,0xA5,0xA6,0xA6,0x88,0x88,0x88,0x78,0x87,0x87,     //2030   
-C51 COMPILER V9.60.7.0   LUNAR                                                             05/29/2024 17:18:41 PAGE 2   
+C51 COMPILER V9.60.7.0   LUNAR                                                             05/30/2024 17:52:55 PAGE 2   
 
   49                 0xA5,0xB4,0x96,0xA5,0x96,0x96,0x88,0x78,0x78,0x78,0x87,0x87,     //2031   
   50                 0x95,0xB4,0xA5,0xB4,0xA5,0xA6,0x97,0x87,0x87,0x78,0x87,0x96,     //2032   
@@ -126,7 +126,7 @@ line level    source
  108   3                  if((LunarCalendarTable[year - 2001] & (0x80000 >> (index-1)))==0) StaticDayCount = 29;
  109   3                  else StaticDayCount = 30;
  110   3              }
-C51 COMPILER V9.60.7.0   LUNAR                                                             05/29/2024 17:18:41 PAGE 3   
+C51 COMPILER V9.60.7.0   LUNAR                                                             05/30/2024 17:52:55 PAGE 3   
 
  111   2              day = StaticDayCount - Spring_NY + 1;
  112   2          }

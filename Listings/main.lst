@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              05/29/2024 21:24:33 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              06/10/2024 16:35:07 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -10,7 +10,7 @@ line level    source
 
    1          #include "reg52.h"
    2          #include "oled.h"
-   3          //#include "bmp.h"
+   3          #include "bmp.h"
    4          #include "dht11.h"
    5          #include "ds1302.h"
    6          #include "keyscan.h"
@@ -20,27 +20,27 @@ line level    source
   10          #include "delay.h"
   11          #include "lunar.h"
   12          #include "mq2.h"
-  13          
-  14          Sensor sensor;
-  15          Alarm alarm;
+  13          #include "hc08.h"
+  14          #include "weather.h"
+  15          #include "event.h"
   16          
-  17          unsigned char str[] = {0,1,2,3,4};
-  18          char dht11_to_show[8];
+  17          extern Alarm alarm;
+  18          
   19          uchar hour_type = 24;
   20          
-  21          void function1(){
+  21          void switch_hour_type(){
   22   1        if(hour_type == 12) hour_type = 24;
   23   1        else if(hour_type == 24) hour_type = 12;
   24   1      }
   25          
-  26          void function2(){
+  26          void function3(){
   27   1        uchar selection = 0;
   28   1        OLED_Clear();
   29   1        while(1){
-  30   2          OLED_ShowString(22,0,"Alarm",16);
-  31   2          OLED_ShowString(22,2,"Music",16);
-  32   2          OLED_ShowString(22,4,"Weather",16);
-  33   2          OLED_ShowString(22,6,"Settings",16);
+  30   2          OLED_ShowString(24,0,"Alarm",16);
+  31   2          OLED_ShowString(24,2,"Music",16);
+  32   2          OLED_ShowString(24,4,"Weather",16);
+  33   2          OLED_ShowString(24,6,"Calendar",16);
   34   2          OLED_ShowChar(16,selection*2,'>',16);
   35   2          if(getKey() == 1){
   36   3            OLED_ShowChar(16,selection*2,' ',16);
@@ -60,9 +60,9 @@ line level    source
   50   3            switch(selection){
   51   4              case 0: {page_alarm(); break;}
   52   4              case 1: {page_music(); break;}
-  53   4              case 2: {/*page_weather();*/ break;}
-  54   4              case 3: {page_settings(); break;}
-C51 COMPILER V9.60.7.0   MAIN                                                              05/29/2024 21:24:33 PAGE 2   
+  53   4              case 2: {page_weather_all(); break;}
+  54   4              case 3: {/*page_calendar();*/ break;}
+C51 COMPILER V9.60.7.0   MAIN                                                              06/10/2024 16:35:07 PAGE 2   
 
   55   4              default: break;
   56   4            }
@@ -70,55 +70,72 @@ line level    source
   58   2        }
   59   1      }
   60          
-  61          void function3(){
-  62   1        
-  63   1      }
-  64          
-  65          void function4(){
-  66   1        
-  67   1      }
-  68          
-  69          /*******************************Main*******************************/
-  70          void main(){
-  71   1        Delay_50ms(1);//等待系统稳定
-  72   1        ds1302_init();  //DS1302初始化
-  73   1        OLED_Init();
-  74   1        OLED_Display_On();
-  75   1        OLED_Clear();
-  76   1        OLED_Clear();
-  77   1        alarm_init();
-  78   1        while(1){
-  79   2          print_time_now(20,2,hour_type);
-  80   2          print_date_now(0,4);
-  81   2          print_lunar_now(0,0);
-  82   2          print_solar_term_now(80,0);
-  83   2          getdata((uchar *)&sensor);
-  84   2          dht11_to_show[0] = (char)(sensor.temper / 10 + '0');
-  85   2          dht11_to_show[1] = (char)(sensor.temper % 10 + '0');
-  86   2          dht11_to_show[2] = 'C';
-  87   2          dht11_to_show[3] = ' ';
-  88   2          dht11_to_show[4] = (char)(sensor.humid / 10 + '0');
-  89   2          dht11_to_show[5] = (char)(sensor.humid % 10 + '0');
-  90   2          dht11_to_show[6] = '%';
-  91   2          dht11_to_show[7] = 0;
-  92   2          OLED_ShowString(20,6, dht11_to_show,16);
-  93   2          switch(getKey()){
-  94   3            case 1: {function1(); break;}
-  95   3            case 2: {function2(); break;}
-  96   3            case 3: {function3(); break;}
-  97   3            case 4: {function4(); break;}
-  98   3            default: break;
-  99   3          }
- 100   2          alarm_tick_tock();
- 101   2          mq2_tick_tock();
- 102   2        }
- 103   1      }
+  61          void function2(){
+  62   1        uint year = get_integer_year();
+  63   1        uchar month = get_integer_month(), day = get_integer_day();
+  64   1        OLED_Clear();
+  65   1        while(1){
+  66   2          print_date_any_time(0, 2, year, month, day);
+  67   2          print_lunar_and_term_any_time(12,4, year, month, day);
+  68   2          if(getKey() == 1){
+  69   3            day++;
+  70   3            if(day>28) day = 28;
+  71   3          }
+  72   2          else if(getKey() == 2){
+  73   3            day--;
+  74   3            if(day<1) day = 1;
+  75   3          }
+  76   2          else if(getKey() == 3){
+  77   3            OLED_Clear();
+  78   3            break;
+  79   3          }
+  80   2        }
+  81   1      }
+  82          
+  83          void function4(){
+  84   1        page_settings();
+  85   1      }
+  86          
+  87          /*******************************Main*******************************/
+  88          void main(){
+  89   1        Delay_50ms(1);//等待系统稳定
+  90   1        ds1302_init();  //DS1302初始化
+  91   1        UsartConfiguration();
+  92   1        OLED_Init();
+  93   1        OLED_Display_On();
+  94   1        OLED_Clear();
+  95   1        OLED_DrawBMP(0, 0, 128, 8, start_up);
+  96   1        Delay_50ms(25);
+  97   1        OLED_Clear();
+  98   1        alarm_init();
+  99   1        weather_init();
+ 100   1        event_init();
+ 101   1        while(1){
+ 102   2          print_time_now(0,3,hour_type);
+ 103   2          print_date_now(0,1);
+ 104   2      //    print_weather_base_now(80, 2);
+ 105   2          print_temp_and_hum(44, 0);
+ 106   2          switch(getKey()){
+ 107   3            case 1: {switch_hour_type(); break;}
+ 108   3            case 2: {function2(); break;}
+ 109   3            case 3: {function3(); break;}
+ 110   3            case 4: {function4(); break;}
+ 111   3            default: break;
+ 112   3          }
+ 113   2          alarm_tick_tock();
+ 114   2          mq2_tick_tock();
+ 115   2          event_tick_tock(0,6);
+ 116   2          if(!is_event_about_to_happen()) print_lunar_and_term_now(12, 6);
+C51 COMPILER V9.60.7.0   MAIN                                                              06/10/2024 16:35:07 PAGE 3   
+
+ 117   2        }
+ 118   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    435    ----
-   CONSTANT SIZE    =     29    ----
-   XDATA SIZE       =     20       1
+   CODE SIZE        =    554    ----
+   CONSTANT SIZE    =   1053    ----
+   XDATA SIZE       =      1       5
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

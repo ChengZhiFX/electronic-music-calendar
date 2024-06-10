@@ -31,18 +31,18 @@ void page_set_date_and_time(){
 		OLED_ShowChar(104,2,Char(weekday),16);
 		if(step == 1) OLED_ShowString_Reverse(16,2,year_to_show,16);
 		else OLED_ShowString(16,2,year_to_show,16);
-		OLED_ShowChar(50,2,'/',16);
+		OLED_ShowChar(48,2,'/',16);
 		if(step == 2) OLED_ShowString_Reverse(56,2,month_to_show,16);
 		else OLED_ShowString(56,2,month_to_show,16);
-		OLED_ShowChar(74,2,'/',16);
+		OLED_ShowChar(72,2,'/',16);
 		if(step == 3) OLED_ShowString_Reverse(80,2,day_to_show,16);
 		else OLED_ShowString(80,2,day_to_show,16);
 		if(step == 4) OLED_ShowString_Reverse(32,4,hour_to_show,16);
 		else OLED_ShowString(32,4,hour_to_show,16);
-		OLED_ShowChar(50,4,':',16);
+		OLED_ShowChar(48,4,':',16);
 		if(step == 5) OLED_ShowString_Reverse(56,4,minute_to_show,16);
 		else OLED_ShowString(56,4,minute_to_show,16);
-		OLED_ShowChar(74,4,':',16);
+		OLED_ShowChar(72,4,':',16);
 		if(step == 6) OLED_ShowString_Reverse(80,4,second_to_show,16);
 		else OLED_ShowString(80,4,second_to_show,16);
 		if(getKey() == 1){
@@ -103,7 +103,7 @@ void page_set_date_and_time(){
 		}
 		else if(getKey() == 4){
 			OLED_Clear();
-			write_time_to_buffer(year, month, day, hour, minute, second, weekday);
+			write_date_and_time(year, month, day, hour, minute, second);
 			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();
@@ -145,14 +145,32 @@ void page_set_notification(){
 	}
 }
 
+void page_set_display(){
+	
+}
+
+void page_about(){
+	OLED_Clear();
+	while(1){
+		OLED_ShowString(16,0,"Copyright(C)",16);
+		OLED_ShowString(8,2,"Zhang Jiacheng",16);
+		OLED_ShowString(16,4,"202200120145",16);
+		OLED_ShowString(0,6,"Chongxin College",16);
+		if(getKey()){
+			OLED_Clear();
+			break;
+		}
+	}
+}
+
 void page_settings(){
 	uchar selection = 0;
 	OLED_Clear();
 	while(1){
-		OLED_ShowString(22,0,"Date&Time",16);
-		OLED_ShowString(22,2,"Notification",16);
-		OLED_ShowString(22,4,"Display",16);
-		OLED_ShowString(22,6,"About",16);
+		OLED_ShowString(24,0,"Date&Time",16);
+		OLED_ShowString(24,2,"Notification",16);
+		OLED_ShowString(24,4,"Display",16);
+		OLED_ShowString(24,6,"About",16);
 		OLED_ShowChar(16,selection*2,'>',16);
 		if(getKey() == 1){
 			OLED_ShowChar(16,selection*2,' ',16);
@@ -172,8 +190,8 @@ void page_settings(){
 			switch(selection){
 				case 0: {page_set_date_and_time(); break;}
 				case 1: {page_set_notification(); break;}
-				case 2: {break;}
-				case 3: {break;}
+				case 2: {page_set_display(); break;}
+				case 3: {page_about(); break;}
 				default: break;
 			}
 		}

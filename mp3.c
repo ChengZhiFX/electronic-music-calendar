@@ -91,14 +91,13 @@ void set_volume(char vol_temp){
 
 void page_music(){
 	uchar selection = 1;
-	char title[] = "Music1";
-	char vol_to_show[] = "Volume:  ";
-	vol_to_show[8] = (char)(vol / 5 + '0');
+	char vol_init = vol, title[] = "Music1", vol_to_show[] = "Volume:  ";
 	OLED_Clear();
 	set_volume(vol);
 	playmusic(1);
 	while(1){
 		OLED_ShowString(32,0,title,16);
+		vol_to_show[8] = (char)(vol / 5 + '0');
 		OLED_ShowString(20,2,vol_to_show,16);
 		if(getKey() == 1){
 			set_volume(vol+5);
@@ -110,6 +109,7 @@ void page_music(){
 		}
 		else if(getKey() == 3){
 			stopmusic();
+			vol = vol_init;
 			OLED_Clear();
 			break;
 		}
