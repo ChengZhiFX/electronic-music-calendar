@@ -42,6 +42,20 @@ void set_time_via_bt(){
 	index++;
 }
 
+void sync_time_via_bt(){
+	if(receive_data!='$'){
+		if(receive_data=='?'){
+			write_date(char_to_quadruple_digit(rcv_buffer[0],rcv_buffer[1],rcv_buffer[2],rcv_buffer[3]), char_to_double_digit(rcv_buffer[4],rcv_buffer[5]), char_to_double_digit(rcv_buffer[6],rcv_buffer[7]));
+			write_time(char_to_double_digit(rcv_buffer[8],rcv_buffer[9]), char_to_double_digit(rcv_buffer[10],rcv_buffer[11]), char_to_double_digit(rcv_buffer[12],rcv_buffer[13]));
+			flag = 0;
+			index = 0;
+			return;
+		}
+		else rcv_buffer[index-1] = receive_data;
+	}
+	index++;
+}
+
 void set_alarm_via_bt(){
 	if(receive_data!='%'){
 		if(receive_data=='?'){
@@ -149,6 +163,10 @@ void Com_Int(void) interrupt 4 {
 			}
 			case '@':{
 				set_time_via_bt();
+				break;
+			}
+			case '$':{
+				sync_time_via_bt();
 				break;
 			}
 			case '%':{

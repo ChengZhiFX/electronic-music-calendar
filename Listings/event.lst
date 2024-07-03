@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   EVENT                                                             06/10/2024 16:40:34 PAGE 1   
+C51 COMPILER V9.60.7.0   EVENT                                                             07/03/2024 21:10:18 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE EVENT
@@ -11,65 +11,187 @@ line level    source
    1          #include "event.h"
    2          #include "ds1302.h"
    3          #include "keyscan.h"
-   4          
-   5          Event event;
+   4          #include "alarm.h"
+   5          #include "delay.h"
    6          
-   7          void event_init(){
-   8   1        event.year = get_integer_year();
-   9   1        event.month = get_integer_month();
-  10   1        event.day = get_integer_day();
-  11   1        event.changed = 0;
-  12   1      }
-  13          
-  14          uchar is_event_about_to_happen(){
-  15   1        if(get_integer_year() == event.year && get_integer_month() == event.month && get_integer_day() == event.d
-             -ay - 1)
-  16   1          return 1;
-  17   1        else return 0;
-  18   1      }
-  19          
-  20          void set_event_control(uint year, char month, char day, uchar enable){
-  21   1        event.year = year;
-  22   1        event.month = month;
-  23   1        event.day = day;
-  24   1      }
-  25          
-  26          void set_event_content(char content[20]){
-  27   1        uchar i;
-  28   1        for(i=0;content[i]!=0 && i<16;i++) event.content[i] = content[i];
-  29   1        if(i<16) event.content[i] = 0;
-  30   1        else event.content[16] = 0;
-  31   1        event.changed = 1;
-  32   1      }
-  33          
-  34          void event_tick_tock(uchar x, uchar y){
-  35   1        if(event.changed){
-  36   2          OLED_ShowString(x,y,"                ",16);
-  37   2          event.changed = 0;
-  38   2        }
-  39   1        if(is_event_about_to_happen()) OLED_ShowString(x,y,event.content,16);
-  40   1      }
-  41          
-  42          //void page_reminder(){
-  43          //  OLED_Clear();
-  44          //  OLED_ShowString(0,2,event.content,16);
-  45          //  while(1){
-  46          //    if(getKey()){
-  47          //      event.enable = 0;
-  48          //      OLED_Clear();
-  49          //      break;
-  50          //    }
-  51          //  }
-  52          //}
+   7          Date today;
+   8          Event event;
+   9          uchar redraw = 0, event_about_to_happen_old = 0, event_about_to_happen_new = 0, event_status_temp = 0;
+  10          
+  11          void event_init(){
+  12   1        event.year = 0;
+  13   1        event.month = 1;
+  14   1        event.day = 2;
+  15   1        event.year_of_last_day = 0;
+  16   1        event.month_of_last_day = 1;
+  17   1        event.day_of_last_day = 1;
+  18   1        event.status = 0;
+  19   1      }
+  20          
+  21          Date date_addition_adjust(uint year_num, char month_num, char day_num){
+  22   1        Date correct_date;
+  23   1        day_num = adjust_30(year_num, month_num, day_num, 0);
+  24   1        if(day_num == 1) month_num++;
+  25   1        if (month_num > 12) {
+  26   2          month_num = 1;
+  27   2          year_num++;
+  28   2        }
+  29   1        correct_date.year = year_num;
+  30   1        correct_date.month = month_num;
+  31   1        correct_date.day = day_num;
+  32   1        return correct_date;
+  33   1      }
+  34          
+  35          Date date_subtraction_adjust(uint year_num, char month_num, char day_num){
+  36   1        Date correct_date;
+  37   1        if(day_num < 1) month_num--;
+  38   1        if(month_num < 1){
+  39   2          year_num--;
+  40   2          month_num = 12;
+  41   2        }
+  42   1        if(day_num < 1) day_num = adjust_30(year_num, month_num, 32, 1);
+  43   1        correct_date.year = year_num;
+  44   1        correct_date.month = month_num;
+  45   1        correct_date.day = day_num;
+  46   1        return correct_date;
+  47   1      }
+  48          
+  49          uchar is_event_about_to_happen(){
+  50   1        today.year = get_integer_year();
+  51   1        today.month = get_integer_month();
+  52   1        today.day = get_integer_day();
+  53   1        if(today.year == event.year && today.month == event.month && today.day == event.day) return 1;
+  54   1        if(event.status == 2 && today.year == event.year_of_last_day && today.month == event.month_of_last_day &&
+C51 COMPILER V9.60.7.0   EVENT                                                             07/03/2024 21:10:18 PAGE 2   
 
-C51 COMPILER V9.60.7.0   EVENT                                                             06/10/2024 16:40:34 PAGE 2   
+             - today.day == event.day_of_last_day) return 1;
+  55   1        return 0;
+  56   1      }
+  57          
+  58          void set_event_control(uint year, char month, char day, uchar status){
+  59   1        Date last_day;
+  60   1        event.year = year;
+  61   1        event.month = month;
+  62   1        event.day = day;
+  63   1        event.status = status;
+  64   1        last_day = date_subtraction_adjust(event.year, event.month, event.day - 1);
+  65   1        event.year_of_last_day = last_day.year;
+  66   1        event.month_of_last_day = last_day.month;
+  67   1        event.day_of_last_day = last_day.day;
+  68   1        event_status_temp = event.status;
+  69   1      }
+  70          
+  71          void set_event_content(char content[20]){
+  72   1        uchar i;
+  73   1        for(i=0;content[i]!=0 && i<16;i++) event.content[i] = content[i];
+  74   1        if(i<16) event.content[i] = 0;
+  75   1        else event.content[16] = 0;
+  76   1        redraw = 1;
+  77   1      }
+  78          
+  79          void event_tick_tock(uchar x, uchar y){
+  80   1        event_about_to_happen_new = is_event_about_to_happen();
+  81   1        if(event_about_to_happen_new != event_about_to_happen_old){
+  82   2          redraw = 1;
+  83   2          event_about_to_happen_old = event_about_to_happen_new;
+  84   2        }
+  85   1        if(redraw){
+  86   2          OLED_ShowString(x,y,"                ",16);
+  87   2          redraw = 0;
+  88   2        }
+  89   1        if(event.status && event_about_to_happen_new){
+  90   2          OLED_ShowString(x,y,event.content,16);
+  91   2        }
+  92   1        else{
+  93   2          print_lunar_and_term_now(12, y);
+  94   2        }
+  95   1      }
+  96          
+  97          void page_event_null(){
+  98   1        char ble_add_chinese[] = {43,48,49,50,51,72,73}, no_event_chinese[] = {71,29,30,69,70}, press_key_cancel_
+             -chinese[] = {58,59,60,61,62,63};
+  99   1        OLED_Clear();
+ 100   1        OLED_ShowChineseString(24,0,0,no_event_chinese,5);
+ 101   1        OLED_ShowChineseString(8,2,0,ble_add_chinese,7);
+ 102   1        OLED_ShowChineseString(16,6,0,press_key_cancel_chinese,6);
+ 103   1        while(1){
+ 104   2          if(event.year || getKey()){
+ 105   3            OLED_Clear();
+ 106   3            break;
+ 107   3          }
+ 108   2        }
+ 109   1      }
+ 110          
+ 111          void page_event_view(){
+ 112   1        char remind_chinese[] = {29,30}, only_same_chinese[] = {80,79,4}, same_and_in_advance_chinese[] = {79,4,2
+             -3,29,76,77,4};
+ 113   1        char saved_chinese[] = {29,30,13,14,15}, if_sure_to_clear_chinese[] = {81,36,82,83,69,70,84}, cancel_chin
+C51 COMPILER V9.60.7.0   EVENT                                                             07/03/2024 21:10:18 PAGE 3   
+
+             -ese[] = {85,86}, sure_chinese[] = {81,36};
+ 114   1        uchar weekday_char[2] = {16, 15};
+ 115   1        OLED_Clear();
+ 116   1        while(1){
+ 117   2          if(!event.year){
+ 118   3            page_event_null();
+ 119   3            if(!event.year) return;
+ 120   3          }
+ 121   2          if(redraw){
+ 122   3            OLED_Clear();
+ 123   3            redraw = 0;
+ 124   3          }
+ 125   2          OLED_ShowString(0,0,event.content,16);
+ 126   2          print_date_any_time(0, 2, event.year, event.month, event.day);
+ 127   2          OLED_ShowChineseString(0,4,0,remind_chinese,2);
+ 128   2          OLED_ShowChar(32,4,':',16);
+ 129   2          if(event_status_temp == 0) OLED_ShowChinese_Reverse(48,4,0,71);
+ 130   2          else OLED_ShowChinese(48,4,0,71);
+ 131   2          if(event_status_temp == 1) OLED_ShowChineseString_Reverse(80,4,0,only_same_chinese,3);
+ 132   2          else OLED_ShowChineseString(80,4,0,only_same_chinese,3);
+ 133   2          if(event_status_temp == 2) OLED_ShowChineseString_Reverse(8,6,0,same_and_in_advance_chinese,7);
+ 134   2          else OLED_ShowChineseString(8,6,0,same_and_in_advance_chinese,7);
+ 135   2          if(getKey() == 1){
+ 136   3            OLED_Clear();
+ 137   3            OLED_ShowChineseString(8,2,0,if_sure_to_clear_chinese,7);
+ 138   3            OLED_ShowChineseString(0,6,0,cancel_chinese,2);
+ 139   3            OLED_ShowChineseString(48,6,0,sure_chinese,2);
+ 140   3            while(1){
+ 141   4              if(getKey() == 3) break;
+ 142   4              else if(getKey() == 4){
+ 143   5                event_init();
+ 144   5                break;
+ 145   5              }
+ 146   4            }
+ 147   3            OLED_Clear();
+ 148   3          }
+ 149   2          else if(getKey() == 2){
+ 150   3            event_status_temp++;
+ 151   3            if(event_status_temp > 2) event_status_temp = 0;
+ 152   3          }
+ 153   2          else if(getKey() == 3){
+ 154   3            OLED_Clear();
+ 155   3            break;
+ 156   3          }
+ 157   2          else if(getKey() == 4){
+ 158   3            OLED_Clear();
+ 159   3            event.status = event_status_temp;
+ 160   3            OLED_ShowChineseString(24,2,0,saved_chinese,5);
+ 161   3      //      OLED_ShowString(32,2,"Saved!",16);
+ 162   3            delay_ms(2000);
+ 163   3            OLED_Clear();
+ 164   3            break;
+ 165   3          }
+ 166   2        }
+ 167   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    227    ----
-   CONSTANT SIZE    =     17    ----
-   XDATA SIZE       =     25      10
+   CODE SIZE        =   1340    ----
+   CONSTANT SIZE    =     65    ----
+   XDATA SIZE       =     37      76
    PDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   EVENT                                                             07/03/2024 21:10:18 PAGE 4   
+
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

@@ -13,7 +13,7 @@
 
 //--定义使用的IO--//
 
-sbit LED=P2^0;
+sbit LED=P0^0;
 
 //--声明全局函数--//   
 void sendData(uchar *datas);

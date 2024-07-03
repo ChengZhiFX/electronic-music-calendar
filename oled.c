@@ -175,8 +175,7 @@ void OLED_Clear(void)
 //y:0~63
 //mode:0,反白显示;1,正常显示				 
 //size:选择字体 16/12 
-void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size)
-{          
+void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size){          
         uchar c=0,i=0;    
 //        x+=2;
         c=chr-' ';//???????            
@@ -206,8 +205,7 @@ void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size)
                 OLED_WR_Byte(F12X24[c*36+i+24],OLED_DATA);
 				}
 }
-void OLED_ShowChar_Reverse(uchar x,uchar y,uchar chr,uchar Char_Size)
-{          
+void OLED_ShowChar_Reverse(uchar x,uchar y,uchar chr,uchar Char_Size){          
         uchar c=0,i=0;    
 //        x+=2;
         c=chr-' ';//???????            
@@ -318,12 +316,45 @@ void OLED_ShowChinese(uchar x, uchar y, uchar sel_lib, uchar num){
 	}
 }
 
+void OLED_ShowChinese_Reverse(uchar x, uchar y, uchar sel_lib, uchar num){
+	uchar t, adder=0;
+	uchar (*lib)[32];
+	switch(sel_lib){
+		case 0: {lib = Hzk; break;}
+		case 1: {lib = Lunar; break;}
+		case 2: {lib = SolarTermLib; break;}
+		case 3: {lib = WeatherLib; break;}
+		default: {OLED_ShowChar_Reverse(x,y,'?',16); return;}
+	}
+	OLED_Set_Pos(x,y);
+	for(t=0;t<16;t++){
+		OLED_WR_Byte(~lib[2*num][t],OLED_DATA);
+		adder+=1;
+	}
+	OLED_Set_Pos(x,y+1);	
+	for(t=0;t<16;t++){	
+		OLED_WR_Byte(~lib[2*num+1][t],OLED_DATA);
+		adder+=1;
+	}
+}
+
 void OLED_ShowChineseString(uchar x,uchar y,uchar sel_lib,uchar chr[],uchar length)
 {
     uchar j=0;
 //    x+=2;
     for(j=0;j<length;j++){
 			OLED_ShowChinese(x, y, sel_lib, chr[j]);
+      x+=16;
+      if(x>112){x=0;y+=2;}
+    }
+}
+
+void OLED_ShowChineseString_Reverse(uchar x,uchar y,uchar sel_lib,uchar chr[],uchar length)
+{
+    uchar j=0;
+//    x+=2;
+    for(j=0;j<length;j++){
+			OLED_ShowChinese_Reverse(x, y, sel_lib, chr[j]);
       x+=16;
       if(x>112){x=0;y+=2;}
     }

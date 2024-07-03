@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MP3                                                               06/10/2024 16:13:32 PAGE 1   
+C51 COMPILER V9.60.7.0   MP3                                                               07/03/2024 17:34:44 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MP3
@@ -62,7 +62,7 @@ line level    source
   52   2          Send(0x0a);
   53   2          Send(num);
   54   2          Send(0x0b);
-C51 COMPILER V9.60.7.0   MP3                                                               06/10/2024 16:13:32 PAGE 2   
+C51 COMPILER V9.60.7.0   MP3                                                               07/03/2024 17:34:44 PAGE 2   
 
   55   2        }
   56   1      }
@@ -103,45 +103,48 @@ line level    source
   91          
   92          void page_music(){
   93   1        uchar selection = 1;
-  94   1        char vol_init = vol, title[] = "Music1", vol_to_show[] = "Volume:  ";
-  95   1        OLED_Clear();
-  96   1        set_volume(vol);
-  97   1        playmusic(1);
-  98   1        while(1){
-  99   2          OLED_ShowString(32,0,title,16);
- 100   2          vol_to_show[8] = (char)(vol / 5 + '0');
- 101   2          OLED_ShowString(20,2,vol_to_show,16);
- 102   2          if(getKey() == 1){
- 103   3            set_volume(vol+5);
- 104   3            vol_to_show[8] = (char)(vol / 5 + '0');
- 105   3          }
- 106   2          else if(getKey() == 2){
- 107   3            set_volume(vol-5);
- 108   3            vol_to_show[8] = (char)(vol / 5 + '0');
- 109   3          }
- 110   2          else if(getKey() == 3){
- 111   3            stopmusic();
- 112   3            vol = vol_init;
- 113   3            OLED_Clear();
- 114   3            break;
- 115   3          }
- 116   2          else if(getKey() == 4){
-C51 COMPILER V9.60.7.0   MP3                                                               06/10/2024 16:13:32 PAGE 3   
+  94   1        char title_chinese[] = {2,3,66,67,68}, vol_chinese[] = {2,10};
+  95   1        char vol_init = vol, music_playing[] = "Music1", vol_to_show[] = ":  ";
+  96   1        OLED_Clear();
+  97   1        set_volume(vol);
+  98   1        playmusic(1);
+  99   1        while(1){
+ 100   2          OLED_ShowChineseString(24,0,0,title_chinese,5);
+ 101   2          OLED_ShowString(32,2,music_playing,16);
+ 102   2          vol_to_show[2] = Char(vol / 5);
+ 103   2          OLED_ShowChineseString(32,4,0,vol_chinese,2);
+ 104   2          OLED_ShowString(64,4,vol_to_show,16);
+ 105   2          if(getKey() == 1){
+ 106   3            set_volume(vol+5);
+ 107   3            vol_to_show[2] = Char(vol / 5);
+ 108   3          }
+ 109   2          else if(getKey() == 2){
+ 110   3            set_volume(vol-5);
+ 111   3            vol_to_show[2] = Char(vol / 5);
+ 112   3          }
+ 113   2          else if(getKey() == 3){
+ 114   3            stopmusic();
+ 115   3            vol = vol_init;
+ 116   3            OLED_Clear();
+C51 COMPILER V9.60.7.0   MP3                                                               07/03/2024 17:34:44 PAGE 3   
 
- 117   3            stopmusic();
- 118   3            selection++;
- 119   3            if(selection >= 10) selection = 1;
- 120   3            title[5] = (char)(selection + '0');
- 121   3            playmusic(selection);
- 122   3          }
- 123   2        }
- 124   1      }
+ 117   3            break;
+ 118   3          }
+ 119   2          else if(getKey() == 4){
+ 120   3            stopmusic();
+ 121   3            selection++;
+ 122   3            if(selection >= 10) selection = 1;
+ 123   3            music_playing[5] = Char(selection);
+ 124   3            playmusic(selection);
+ 125   3          }
+ 126   2        }
+ 127   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    508    ----
-   CONSTANT SIZE    =     17    ----
-   XDATA SIZE       =      1      26
+   CODE SIZE        =    606    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =      1      27
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

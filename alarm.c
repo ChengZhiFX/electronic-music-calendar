@@ -7,7 +7,6 @@
 
 uchar alarm_suspend = 0;
 Alarm alarm;
-//Alarm alarm_delay;
 
 void alarm_init(){
 	alarm.hour = get_integer_hour();
@@ -23,20 +22,20 @@ char adjust_12(char month_num){
 	return month_num;
 }
 
-char adjust_30(uint year_num, char month_num, char day_num){
+char adjust_30(uint year_num, char month_num, char day_num, uchar keep_max){
 	if(month_num == 2){
 		if(isLeapYear(year_num)){
-			if(day_num > 29) day_num = 1;
+			if(day_num > 29) day_num = keep_max? 29:1;
 		}
 		else {
-			if(day_num > 28) day_num = 1;
+			if(day_num > 28) day_num = keep_max? 28:1;
 		}
 	}
 	else if(month_num == 4 || month_num == 6 || month_num == 9 || month_num == 11){
-		if(day_num > 30) day_num = 1;
+		if(day_num > 30) day_num = keep_max? 30:1;
 	}
 	else{
-		if(day_num > 31) day_num = 1;
+		if(day_num > 31) day_num = keep_max? 31:1;
 	}
 	return day_num;
 }
@@ -60,7 +59,8 @@ void set_alarm(char hour, char minute, char music, uchar enable){
 }
 
 void page_alarm(){
-	char title[] = "Alarm1";
+	char title_chinese[] = {0,1,19,36}, enabled_chinese[] = {9,12}, disable_chinese[] = {11,12}, saved_chinese[] = {0,1,13,14,15};
+//	char title[] = "Alarm1";
 	char alarm_hour[3] = "00";
 	char alarm_minute[3] = "00";
 	char alarm_music[] = "Music ";
@@ -72,7 +72,8 @@ void page_alarm(){
 	double_digit_to_string(alarm.minute, alarm_minute);
 	alarm_music[5] = Char(alarm.ringtone);
 	while(1){
-		OLED_ShowString(32,0,title,16);
+		OLED_ShowChineseString(32,0,0,title_chinese,4);
+//		OLED_ShowString(32,0,title,16);
 		if(step == 1) OLED_ShowString_Reverse(32,2,alarm_hour,16);
 		else OLED_ShowString(32,2,alarm_hour,16);
 		OLED_ShowChar(48,2,':',16);
@@ -81,12 +82,16 @@ void page_alarm(){
 		if(step == 3) OLED_ShowString_Reverse(32,4,alarm_music,16);
 		else OLED_ShowString(32,4,alarm_music,16);
 		if(step == 4){
-			if(alarm.enable) OLED_ShowString_Reverse(32,6,"Enabled",16);
-			else OLED_ShowString_Reverse(32,6,"Disable",16);
+			if(alarm.enable) OLED_ShowChineseString_Reverse(48,6,0,enabled_chinese,2);
+			else OLED_ShowChineseString_Reverse(48,6,0,disable_chinese,2);
+//			if(alarm.enable) OLED_ShowString_Reverse(32,6,"Enabled",16);
+//			else OLED_ShowString_Reverse(32,6,"Disable",16);
 		}
 		else{
-			if(alarm.enable) OLED_ShowString(32,6,"Enabled",16);
-			else OLED_ShowString(32,6,"Disable",16);
+			if(alarm.enable) OLED_ShowChineseString(48,6,0,enabled_chinese,2);
+			else OLED_ShowChineseString(48,6,0,disable_chinese,2);
+//			if(alarm.enable) OLED_ShowString(32,6,"Enabled",16);
+//			else OLED_ShowString(32,6,"Disable",16);
 		}
 		if(getKey() == 1){
 			switch(step){
@@ -128,7 +133,8 @@ void page_alarm(){
 		else if(getKey() == 4){
 			OLED_Clear();
 			alarm_suspend = 0;
-			OLED_ShowString(32,2,"Saved!",16);
+			OLED_ShowChineseString(24,2,0,saved_chinese,5);
+//			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();
 			break;
@@ -148,8 +154,10 @@ void alarm_tick_tock(){
 }
 
 void page_ring(){
+	uchar alarm_going_off_chinese[] = {0,1,16,17,18};
 	OLED_Clear();
-	OLED_ShowString(0,2,"Alarm going off",16);
+	OLED_ShowChineseString(24,2,0,alarm_going_off_chinese,5);
+//	OLED_ShowString(0,2,"Alarm going off",16);
 	set_single_loop(1);
 	playmusic(alarm.ringtone);
 	while(1){
