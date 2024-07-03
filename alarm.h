@@ -22,7 +22,7 @@ typedef struct alarm
 }Alarm;
 
 char adjust_12(char month_num);
-char adjust_30(uint year_num, char month_num, char day_num);
+char adjust_30(uint year_num, char month_num, char day_num, uchar keep_max);
 char adjust_24(char hour_num);
 char adjust_60(char minute_num);
 void alarm_init();

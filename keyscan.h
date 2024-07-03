@@ -12,10 +12,10 @@
 #define uint unsigned int
 #endif
 
-sbit key1=P3^0;
-sbit key2=P3^1;
-sbit key3=P3^2;
-sbit key4=P3^3;
+sbit key1=P2^2;
+sbit key2=P2^3;
+sbit key3=P1^1;
+sbit key4=P1^0;
 
 uchar getKey();
 

@@ -91,21 +91,24 @@ void set_volume(char vol_temp){
 
 void page_music(){
 	uchar selection = 1;
-	char vol_init = vol, title[] = "Music1", vol_to_show[] = "Volume:  ";
+	char title_chinese[] = {2,3,66,67,68}, vol_chinese[] = {2,10};
+	char vol_init = vol, music_playing[] = "Music1", vol_to_show[] = ":  ";
 	OLED_Clear();
 	set_volume(vol);
 	playmusic(1);
 	while(1){
-		OLED_ShowString(32,0,title,16);
-		vol_to_show[8] = (char)(vol / 5 + '0');
-		OLED_ShowString(20,2,vol_to_show,16);
+		OLED_ShowChineseString(24,0,0,title_chinese,5);
+		OLED_ShowString(32,2,music_playing,16);
+		vol_to_show[2] = Char(vol / 5);
+		OLED_ShowChineseString(32,4,0,vol_chinese,2);
+		OLED_ShowString(64,4,vol_to_show,16);
 		if(getKey() == 1){
 			set_volume(vol+5);
-			vol_to_show[8] = (char)(vol / 5 + '0');
+			vol_to_show[2] = Char(vol / 5);
 		}
 		else if(getKey() == 2){
 			set_volume(vol-5);
-			vol_to_show[8] = (char)(vol / 5 + '0');
+			vol_to_show[2] = Char(vol / 5);
 		}
 		else if(getKey() == 3){
 			stopmusic();
@@ -117,7 +120,7 @@ void page_music(){
 			stopmusic();
 			selection++;
 			if(selection >= 10) selection = 1;
-			title[5] = (char)(selection + '0');
+			music_playing[5] = Char(selection);
 			playmusic(selection);
 		}
 	}

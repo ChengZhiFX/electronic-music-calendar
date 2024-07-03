@@ -26,10 +26,7 @@ Project File Date:  06/04/2024
 
 <h2>Output:</h2>
 Build target 'Target 1'
-compiling event.c...
 linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_PRINT_WEATHER_BASE_NOW?WEATHER
 *** WARNING L15: MULTIPLE CALL TO SEGMENT
     SEGMENT: ?PR?_CALCULATE_WEEK_DAY?DS1302
     CALLER1: ?C_C51STARTUP
@@ -46,9 +43,17 @@ linking...
     SEGMENT: ?PR?_SENDDATA?HC08
     CALLER1: ?C_C51STARTUP
     CALLER2: ?PR?COM_INT?HC08
-Program Size: data=9.0 xdata=192 code=32000
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?_DATE_SUBTRACTION_ADJUST?EVENT
+    CALLER1: ?C_C51STARTUP
+    CALLER2: ?PR?COM_INT?HC08
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?_ADJUST_30?ALARM
+    CALLER1: ?C_C51STARTUP
+    CALLER2: ?PR?COM_INT?HC08
+Program Size: data=9.0 xdata=253 code=40969
 creating hex file from ".\Objects\main"...
-".\Objects\main" - 0 Error(s), 5 Warning(s).
+".\Objects\main" - 0 Error(s), 6 Warning(s).
 Build Time Elapsed:  00:00:00
 </pre>
 </body>

@@ -28,10 +28,14 @@ void set_weather_from_str(uchar num, char weather_str[13]){
 }
 
 void page_weather_error(){
+	char connect_ble_chinese[] = {43,48,49,50,51}, waiting_chinese[] = {52,53,54,55,4,5,56,57}, press_key_cancel_chinese[] = {58,59,60,61,62,63};
 	OLED_Clear();
-	OLED_ShowString(0,0,"Waiting for App",16);
-	OLED_ShowString(0,4,"Press any key",16);
-	OLED_ShowString(0,6,"to cancel",16);
+	OLED_ShowChineseString(24,0,0,connect_ble_chinese,5);
+	OLED_ShowChineseString(0,2,0,waiting_chinese,8);
+	OLED_ShowChineseString(16,6,0,press_key_cancel_chinese,6);
+//	OLED_ShowString(0,0,"Waiting for App",16);
+//	OLED_ShowString(0,4,"Press any key",16);
+//	OLED_ShowString(0,6,"to cancel",16);
 	while(1){
 		if(weather[0].month != 0 && weather[0].day != 0) break;
 		else if(getKey()){
@@ -42,7 +46,8 @@ void page_weather_error(){
 }
 
 void print_weather_all(uchar page){
-	uchar dayWeather_str[2] = {0,1}, nightWeather_str[2] = {0,1};
+	char day_chinese[] = {64,4}, night_chinese[] = {65,25};
+	uchar dayWeather_str[] = {0,1}, nightWeather_str[] = {0,1};
 	char date_to_show[] = "--/--", dayTemp_to_show[] = "--C", nightTemp_to_show[] = "--C";
 	date_to_show[0] = Char(weather[page-1].month / 10);
 	date_to_show[1] = Char(weather[page-1].month % 10);
@@ -57,36 +62,38 @@ void print_weather_all(uchar page){
 	nightTemp_to_show[0] = Char(weather[page-1].nightTemp / 10);
 	nightTemp_to_show[1] = Char(weather[page-1].nightTemp % 10);
 	OLED_ShowString(32,0,date_to_show,16);
-	OLED_ShowString(0,2,"  Day:",16);
+	OLED_ShowChineseString(0,2,0,day_chinese,2);
+	OLED_ShowString(32,2,":",16);
 	OLED_ShowChineseString(48,2,3,dayWeather_str,2);
 	OLED_ShowString(80,2,dayTemp_to_show,16);
-	OLED_ShowString(0,4,"Night:",16);
+	OLED_ShowChineseString(0,4,0,night_chinese,2);
+	OLED_ShowString(32,4,":",16);
 	OLED_ShowChineseString(48,4,3,nightWeather_str,2);
 	OLED_ShowString(80,4,nightTemp_to_show,16);
 }
 
-void print_weather_base_now(uchar x, uchar y){
-	uchar i, weather_str[2] = {0,0};
-	for(i=0;i<4;i++){
-		if(get_integer_month() == weather[i].month && get_integer_day() == weather[i].day){
-			if(get_integer_hour() < 6){
-				if(i-1>=0 && i-1<4){
-					weather_str[0] = weather[i-1].nightWeather*2;
-					weather_str[1] = weather[i-1].nightWeather*2 + 1;
-				}
-			}
-			else if(get_integer_hour() >= 18){
-				weather_str[0] = weather[i].nightWeather*2;
-				weather_str[1] = weather[i].nightWeather*2 + 1;
-			}
-			else{
-				weather_str[0] = weather[i].dayWeather*2;
-				weather_str[1] = weather[i].dayWeather*2 + 1;
-			}
-			OLED_ShowChineseString(x,y,3,weather_str,2);
-		}
-	}
-}
+//void print_weather_base_now(uchar x, uchar y){
+//	uchar i, weather_str[2] = {0,0};
+//	for(i=0;i<4;i++){
+//		if(get_integer_month() == weather[i].month && get_integer_day() == weather[i].day){
+//			if(get_integer_hour() < 6){
+//				if(i-1>=0 && i-1<4){
+//					weather_str[0] = weather[i-1].nightWeather*2;
+//					weather_str[1] = weather[i-1].nightWeather*2 + 1;
+//				}
+//			}
+//			else if(get_integer_hour() >= 18){
+//				weather_str[0] = weather[i].nightWeather*2;
+//				weather_str[1] = weather[i].nightWeather*2 + 1;
+//			}
+//			else{
+//				weather_str[0] = weather[i].dayWeather*2;
+//				weather_str[1] = weather[i].dayWeather*2 + 1;
+//			}
+//			OLED_ShowChineseString(x,y,3,weather_str,2);
+//		}
+//	}
+//}
 
 void page_weather_all(){
 	uchar page = 1;

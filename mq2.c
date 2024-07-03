@@ -17,9 +17,12 @@ uchar isSmoking(){
 }
 
 void page_smog_alarm(){
+	char smog_detected_chinese[] = {38,39,40,41,42}, view_chinese[] = {43,44,45,46,47};
 	char vol_init;
 	OLED_Clear();
-	OLED_ShowString(0,2,"Smog Detected!",16);
+	OLED_ShowChineseString(24,2,0,smog_detected_chinese,5);
+	OLED_ShowChineseString(24,4,0,view_chinese,5);
+//	OLED_ShowString(0,2,"Smog Detected!",16);
 	vol_init = get_volume();
 	set_volume(30);
 	sendData("FIRE");

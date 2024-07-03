@@ -10,12 +10,14 @@ extern uchar time_buf[8];
 extern uchar smog_alarm_enable;
 
 void page_set_date_and_time(){
+	char set_date_and_time_chinese[] = {21,22,23,24,25,19,20}, saved_chinese[] = {19,20,13,14,15};
 	char year_to_show[5] = "1970";
 	char month_to_show[3] = "01";
 	char day_to_show[3] = "01";
 	char hour_to_show[3] = "00";
 	char minute_to_show[3] = "00";
 	char second_to_show[3] = "00";
+	uchar weekday_char[2] = {16, 15};
 	uint year = get_integer_year();
 	uchar month = get_integer_month(), day = get_integer_day(), weekday = get_integer_weekday();
 	uchar hour = get_integer_hour(), minute = get_integer_minute(), second = get_integer_second(), step = 1;
@@ -26,17 +28,21 @@ void page_set_date_and_time(){
 	double_digit_to_string(hour, hour_to_show);
 	double_digit_to_string(minute, minute_to_show);
 	double_digit_to_string(second, second_to_show);
-	OLED_ShowString(8,0,"Set Date&Time",16);
+	OLED_ShowChineseString(8,0,0,set_date_and_time_chinese,7);
+//	OLED_ShowString(8,0,"Set Date&Time",16);
+	if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
+	else weekday_char[1] = calculate_week_day(year, month, day);
 	while(1){
-		OLED_ShowChar(104,2,Char(weekday),16);
-		if(step == 1) OLED_ShowString_Reverse(16,2,year_to_show,16);
-		else OLED_ShowString(16,2,year_to_show,16);
-		OLED_ShowChar(48,2,'/',16);
-		if(step == 2) OLED_ShowString_Reverse(56,2,month_to_show,16);
-		else OLED_ShowString(56,2,month_to_show,16);
-		OLED_ShowChar(72,2,'/',16);
-		if(step == 3) OLED_ShowString_Reverse(80,2,day_to_show,16);
-		else OLED_ShowString(80,2,day_to_show,16);
+		if(step == 1) OLED_ShowString_Reverse(0,2,year_to_show,16);
+		else OLED_ShowString(0,2,year_to_show,16);
+		OLED_ShowChar(32,2,'/',16);
+		if(step == 2) OLED_ShowString_Reverse(40,2,month_to_show,16);
+		else OLED_ShowString(40,2,month_to_show,16);
+		OLED_ShowChar(56,2,'/',16);
+		if(step == 3) OLED_ShowString_Reverse(64,2,day_to_show,16);
+		else OLED_ShowString(64,2,day_to_show,16);
+		OLED_ShowChineseString(90,2,1,weekday_char,2);
+		
 		if(step == 4) OLED_ShowString_Reverse(32,4,hour_to_show,16);
 		else OLED_ShowString(32,4,hour_to_show,16);
 		OLED_ShowChar(48,4,':',16);
@@ -51,25 +57,28 @@ void page_set_date_and_time(){
 					year++;
 					if(year >= 10000) year = 0;
 					quadruple_digit_to_string(year, year_to_show);
-					day = adjust_30(year, month, day);
+					day = adjust_30(year, month, day, 0);
 					double_digit_to_string(day, day_to_show);
-					weekday = calculate_week_day(year, month, day);
+					if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
+					else weekday_char[1] = calculate_week_day(year, month, day);
 					break;
 				}
 				case 2: {
 					month++;
 					month = adjust_12(month);
 					double_digit_to_string(month, month_to_show);
-					day = adjust_30(year, month, day);
+					day = adjust_30(year, month, day, 0);
 					double_digit_to_string(day, day_to_show);
-					weekday = calculate_week_day(year, month, day);
+					if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
+					else weekday_char[1] = calculate_week_day(year, month, day);
 					break;
 				}
 				case 3: {
 					day++;
-					day = adjust_30(year, month, day);
+					day = adjust_30(year, month, day, 0);
 					double_digit_to_string(day, day_to_show);
-					weekday = calculate_week_day(year, month, day);
+					if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
+					else weekday_char[1] = calculate_week_day(year, month, day);
 					break;
 				}
 				case 4: {
@@ -104,7 +113,8 @@ void page_set_date_and_time(){
 		else if(getKey() == 4){
 			OLED_Clear();
 			write_date_and_time(year, month, day, hour, minute, second);
-			OLED_ShowString(32,2,"Saved!",16);
+			OLED_ShowChineseString(24,2,0,saved_chinese,5);
+//			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();
 			break;
@@ -145,7 +155,7 @@ void page_set_notification(){
 	}
 }
 
-void page_set_display(){
+void page_mod_switch(){
 	
 }
 
@@ -164,13 +174,18 @@ void page_about(){
 }
 
 void page_settings(){
+	uchar date_and_time_chinese[] = {21,22,23,24,25}, notification_chinese[] = {26,27,28,29,30}, module_chinese[] = {31,32,33,34}, about_chinese[] = {34,35,19,37};
 	uchar selection = 0;
 	OLED_Clear();
 	while(1){
-		OLED_ShowString(24,0,"Date&Time",16);
-		OLED_ShowString(24,2,"Notification",16);
-		OLED_ShowString(24,4,"Display",16);
-		OLED_ShowString(24,6,"About",16);
+		OLED_ShowChineseString(24,0,0,date_and_time_chinese,5);
+		OLED_ShowChineseString(24,2,0,notification_chinese,5);
+		OLED_ShowChineseString(32,4,0,module_chinese,4);
+		OLED_ShowChineseString(32,6,0,about_chinese,4);
+//		OLED_ShowString(24,0,"Date&Time",16);
+//		OLED_ShowString(24,2,"Notification",16);
+//		OLED_ShowString(24,4,"Module",16);
+//		OLED_ShowString(24,6,"About",16);
 		OLED_ShowChar(16,selection*2,'>',16);
 		if(getKey() == 1){
 			OLED_ShowChar(16,selection*2,' ',16);
@@ -190,7 +205,7 @@ void page_settings(){
 			switch(selection){
 				case 0: {page_set_date_and_time(); break;}
 				case 1: {page_set_notification(); break;}
-				case 2: {page_set_display(); break;}
+				case 2: {page_mod_switch(); break;}
 				case 3: {page_about(); break;}
 				default: break;
 			}
