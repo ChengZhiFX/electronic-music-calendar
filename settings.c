@@ -5,18 +5,12 @@
 #include "keyscan.h"
 #include "delay.h"
 #include "oled.h"
-
-extern uchar time_buf[8];
-extern uchar smog_alarm_enable;
+#include "bmp.h"
+#include "dht11.h"
 
 void page_set_date_and_time(){
-	char set_date_and_time_chinese[] = {21,22,23,24,25,19,20}, saved_chinese[] = {19,20,13,14,15};
-	char year_to_show[5] = "1970";
-	char month_to_show[3] = "01";
-	char day_to_show[3] = "01";
-	char hour_to_show[3] = "00";
-	char minute_to_show[3] = "00";
-	char second_to_show[3] = "00";
+	char set_date_and_time_chinese[] = {21,22,23,24,25,19,20}, saved_chinese[] = {19,20,13,14,15}, cancel_chinese[] = {62,63}, save_chinese[] = {14,15};
+	char year_to_show[5] = "1970", month_to_show[3] = "01", day_to_show[3] = "01", hour_to_show[3] = "00", minute_to_show[3] = "00", second_to_show[3] = "00";
 	uchar weekday_char[2] = {16, 15};
 	uint year = get_integer_year();
 	uchar month = get_integer_month(), day = get_integer_day(), weekday = get_integer_weekday();
@@ -32,6 +26,8 @@ void page_set_date_and_time(){
 //	OLED_ShowString(8,0,"Set Date&Time",16);
 	if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
 	else weekday_char[1] = calculate_week_day(year, month, day);
+	OLED_ShowChineseString(0,6,0,cancel_chinese,2);
+	OLED_ShowChineseString(48,6,0,save_chinese,2);
 	while(1){
 		if(step == 1) OLED_ShowString_Reverse(0,2,year_to_show,16);
 		else OLED_ShowString(0,2,year_to_show,16);
@@ -113,7 +109,8 @@ void page_set_date_and_time(){
 		else if(getKey() == 4){
 			OLED_Clear();
 			write_date_and_time(year, month, day, hour, minute, second);
-			OLED_ShowChineseString(24,2,0,saved_chinese,5);
+			OLED_DrawBMP(0, 0, 128, 4, success_icon);
+			OLED_ShowChineseString(24,4,0,saved_chinese,5);
 //			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();
@@ -123,40 +120,165 @@ void page_set_date_and_time(){
 }
 
 void page_set_notification(){
-	char vol_to_show[] = "Volume:  ";
-	vol_to_show[8] = (char)(get_volume() / 5 + '0');
+	char title_chinese[] = {26,27,28,29,30}, notification_vol_chinese[] = {26,27,2,10}, media_vol_chinese[] = {108,109,2,10}, alert_vol_chinese[] = {110,111,2,10};
+	uchar step = 1;
 	OLED_Clear();
-	OLED_ShowString(16,0,"Notification",16);
-	
+	OLED_ShowChineseString(24,0,0,title_chinese,5);
+	OLED_ShowChineseString(20,2,0,notification_vol_chinese,4);
+	OLED_ShowChar(84,2,':',16);
+	OLED_ShowChineseString(20,4,0,media_vol_chinese,4);
+	OLED_ShowChar(84,4,':',16);
+	OLED_ShowChineseString(20,6,0,alert_vol_chinese,4);
+	OLED_ShowChar(84,6,':',16);
 	while(1){
-		OLED_ShowString(20,2,vol_to_show,16);
-		if(smog_alarm_enable) OLED_ShowString(32,6,"Enabled",16);
-		else OLED_ShowString(32,6,"Disable",16);
+		if(step == 1) OLED_ShowChar_Reverse(100,2,Char(get_notification_volume() / 5),16);
+		else OLED_ShowChar(100,2,Char(get_notification_volume() / 5),16);
+		if(step == 2) OLED_ShowChar_Reverse(100,4,Char(get_media_volume() / 5),16);
+		else OLED_ShowChar(100,4,Char(get_media_volume() / 5),16);
+		if(step == 3) OLED_ShowChar_Reverse(100,6,Char(get_alert_volume() / 5),16);
+		else OLED_ShowChar(100,6,Char(get_alert_volume() / 5),16);
 		if(getKey() == 1){
 			stopmusic();
-			set_volume(get_volume()+5);
-			vol_to_show[8] = (char)(get_volume() / 5 + '0');
-			playmusic(10);
+			if(step == 1){
+				set_notification_volume(get_notification_volume() + 5);
+				send_volume(1);
+				playmusic(10);
+			}
+			else if(step == 2){
+				set_media_volume(get_media_volume() + 5);
+				send_volume(2);
+				playmusic(17);
+			}
+			else if(step == 3){
+				set_alert_volume(get_alert_volume() + 5);
+				send_volume(3);
+				playmusic(19);
+			}
 		}
 		else if(getKey() == 2){
 			stopmusic();
-			set_volume(get_volume()-5);
-			vol_to_show[8] = (char)(get_volume() / 5 + '0');
-			playmusic(10);
+			if(step == 1){
+				set_notification_volume(get_notification_volume() - 5);
+				send_volume(1);
+				playmusic(10);
+			}
+			else if(step == 2){
+				set_media_volume(get_media_volume() - 5);
+				send_volume(2);
+				playmusic(17);
+			}
+			else if(step == 3){
+				set_alert_volume(get_alert_volume() - 5);
+				send_volume(3);
+				playmusic(19);
+			}
+		}
+		else if(getKey() == 3){
+			stopmusic();
+			send_volume(1);
+			OLED_Clear();
+			break;
+		}
+		else if(getKey() == 4){
+			step++;
+			if(step > 3) step = 1;
+		}
+	}
+}
+
+void page_mod_switch(){
+	char temp_and_hum_sensor_chinese[] = {89,90,91,92,93}, audio_out_chinese[] = {2,94,95,63}, bluetooth_chinese[] = {50,51}, smog_sensor_chinese[] = {41,42,92,93};
+	char enabled_chinese[] = {9,12}, disabled_chinese[] = {11,12}, saved_chinese[] = {19,20,13,14,15};
+	char unable_to_boot_chinese[] = {115,31,32,71,116,9,117}, check_connection_chinese[] = {43,38,46,48,49,118,97,119};
+	extern uchar dht11_enabled, mp3_enabled, hc08_enabled, mq2_enabled;
+	uchar step = 1, dht11_temp = dht11_enabled, mp3_temp = mp3_enabled, hc08_temp = hc08_enabled, mq2_temp = mq2_enabled;
+	OLED_Clear();
+	OLED_ShowChineseString(0,0,0,temp_and_hum_sensor_chinese,5);
+	OLED_ShowChar(80,0,'|',16);
+	OLED_ShowChineseString(0,2,0,audio_out_chinese,4);
+	OLED_ShowChar(80,2,'|',16);
+	OLED_ShowChineseString(0,4,0,bluetooth_chinese,2);
+	OLED_ShowChar(80,4,'|',16);
+	OLED_ShowChineseString(0,6,0,smog_sensor_chinese,4);
+	OLED_ShowChar(80,6,'|',16);
+	while(1){
+		if(step == 1){
+			if(dht11_temp) OLED_ShowChineseString_Reverse(96,0,0,enabled_chinese,2);
+			else OLED_ShowChineseString_Reverse(96,0,0,disabled_chinese,2);
+		}
+		else{
+			if(dht11_temp) OLED_ShowChineseString(96,0,0,enabled_chinese,2);
+			else OLED_ShowChineseString(96,0,0,disabled_chinese,2);
+		}
+		if(step == 2){
+			if(mp3_temp) OLED_ShowChineseString_Reverse(96,2,0,enabled_chinese,2);
+			else OLED_ShowChineseString_Reverse(96,2,0,disabled_chinese,2);
+		}
+		else{
+			if(mp3_temp) OLED_ShowChineseString(96,2,0,enabled_chinese,2);
+			else OLED_ShowChineseString(96,2,0,disabled_chinese,2);
+		}
+		if(step == 3){
+			if(hc08_temp) OLED_ShowChineseString_Reverse(96,4,0,enabled_chinese,2);
+			else OLED_ShowChineseString_Reverse(96,4,0,disabled_chinese,2);
+		}
+		else{
+			if(hc08_temp) OLED_ShowChineseString(96,4,0,enabled_chinese,2);
+			else OLED_ShowChineseString(96,4,0,disabled_chinese,2);
+		}
+		if(step == 4){
+			if(mq2_temp) OLED_ShowChineseString_Reverse(96,6,0,enabled_chinese,2);
+			else OLED_ShowChineseString_Reverse(96,6,0,disabled_chinese,2);
+		}
+		else{
+			if(mq2_temp) OLED_ShowChineseString(96,6,0,enabled_chinese,2);
+			else OLED_ShowChineseString(96,6,0,disabled_chinese,2);
+		}
+		if(getKey() == 1){
+			if(step == 1) dht11_temp = dht11_temp? 0:1;
+			else if(step == 2) mp3_temp = mp3_temp? 0:1;
+			else if(step == 3) hc08_temp = hc08_temp? 0:1;
+			else if(step == 4) mq2_temp = mq2_temp? 0:1;
+		}
+		else if(getKey() == 2){
+			step++;
+			if(step > 4) step = 1;
 		}
 		else if(getKey() == 3){
 			OLED_Clear();
 			break;
 		}
 		else if(getKey() == 4){
-			if(smog_alarm_enable) smog_alarm_enable = 0;
-			else smog_alarm_enable = 1;
+			OLED_Clear();
+			if(dht11_temp && !dht11_try_catch_data()){
+				OLED_ShowChineseString(24,0,0,temp_and_hum_sensor_chinese,5);
+				OLED_ShowChineseString(8,4,0,unable_to_boot_chinese,7);
+				OLED_ShowChineseString(0,6,0,check_connection_chinese,8);
+				delay_ms(2000);
+				OLED_Clear();
+				OLED_ShowChineseString(0,0,0,temp_and_hum_sensor_chinese,5);
+				OLED_ShowChar(80,0,'|',16);
+				OLED_ShowChineseString(0,2,0,audio_out_chinese,4);
+				OLED_ShowChar(80,2,'|',16);
+				OLED_ShowChineseString(0,4,0,bluetooth_chinese,2);
+				OLED_ShowChar(80,4,'|',16);
+				OLED_ShowChineseString(0,6,0,smog_sensor_chinese,4);
+				OLED_ShowChar(80,6,'|',16);
+			}
+			else{
+				dht11_enabled = dht11_temp;
+				mp3_enabled = mp3_temp;
+				hc08_enabled = hc08_temp;
+				mq2_enabled = mq2_temp;
+				OLED_DrawBMP(0, 0, 128, 4, success_icon);
+				OLED_ShowChineseString(24,4,0,saved_chinese,5);
+				delay_ms(2000);
+				OLED_Clear();
+				break;
+			}
 		}
 	}
-}
-
-void page_mod_switch(){
-	
+	//HC08, MQ-2, DHT11, JQ8900
 }
 
 void page_about(){
@@ -174,13 +296,13 @@ void page_about(){
 }
 
 void page_settings(){
-	uchar date_and_time_chinese[] = {21,22,23,24,25}, notification_chinese[] = {26,27,28,29,30}, module_chinese[] = {31,32,33,34}, about_chinese[] = {34,35,19,37};
+	uchar date_and_time_chinese[] = {21,22,23,24,25}, notification_chinese[] = {26,27,28,29,30}, module_chinese[] = {31,32,87,88,68}, about_chinese[] = {34,35,19,37};
 	uchar selection = 0;
 	OLED_Clear();
 	while(1){
 		OLED_ShowChineseString(24,0,0,date_and_time_chinese,5);
 		OLED_ShowChineseString(24,2,0,notification_chinese,5);
-		OLED_ShowChineseString(32,4,0,module_chinese,4);
+		OLED_ShowChineseString(24,4,0,module_chinese,5);
 		OLED_ShowChineseString(32,6,0,about_chinese,4);
 //		OLED_ShowString(24,0,"Date&Time",16);
 //		OLED_ShowString(24,2,"Notification",16);

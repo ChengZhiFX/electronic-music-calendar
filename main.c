@@ -24,12 +24,14 @@ void switch_hour_type(){
 }
 
 void page_calendar(){
+	char press_key_turn_page_chinese[] = {58,112,106,61,113,114};
 	Date date;
 	date.year = get_integer_year();
 	date.month = get_integer_month();
 	date.day = get_integer_day();
 	OLED_Clear();
 	OLED_ShowChineseString(40,0,0,calendar_chinese,3);
+	OLED_ShowChineseString(16,6,0,press_key_turn_page_chinese,6);
 	while(1){
 		print_date_any_time(0, 2, date.year, date.month, date.day);
 		print_lunar_and_term_any_time(12,4, date.year, date.month, date.day);
@@ -84,22 +86,24 @@ void page_function_menu(){
 /*******************************Main*******************************/
 void main(){
 	uchar index = 1;
-	Delay_50ms(1);//等待系统稳定
+	delay_ms(50);//等待系统稳定
 	ds1302_init();  //DS1302初始化
 	UsartConfiguration();
 	OLED_Init();
 	OLED_Display_On();
 	OLED_Clear();
 	OLED_DrawBMP(0, 0, 128, 8, start_up);
-	Delay_50ms(25);
-	OLED_Clear();
 	alarm_init();
 	weather_init();
 	event_init();
+	dht11_try_catch_data();
+	mp3_init();
+	delay_ms(2000);
+	OLED_Clear();
 	while(1){
 		print_time_now(0,3,hour_type);
 		print_date_now(0,1);
-		if(index){print_temp_and_hum(44, 0); index = 0;}
+		if(index){print_temp_and_hum(38, 0); index = 0;}
 		else{mq2_tick_tock(); index = 1;}
 		event_tick_tock(0,6);
 		alarm_tick_tock();

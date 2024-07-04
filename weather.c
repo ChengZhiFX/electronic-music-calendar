@@ -46,30 +46,33 @@ void page_weather_error(){
 }
 
 void print_weather_all(uchar page){
-	char day_chinese[] = {64,4}, night_chinese[] = {65,25};
+	char daytime_chinese[] = {64,4}, night_chinese[] = {65,25};
 	uchar dayWeather_str[] = {0,1}, nightWeather_str[] = {0,1};
-	char date_to_show[] = "--/--", dayTemp_to_show[] = "--C", nightTemp_to_show[] = "--C";
-	date_to_show[0] = Char(weather[page-1].month / 10);
-	date_to_show[1] = Char(weather[page-1].month % 10);
-	date_to_show[3] = Char(weather[page-1].day / 10);
-	date_to_show[4] = Char(weather[page-1].day % 10);
+	char month_to_show[] = "--", day_to_show[] = "--", dayTemp_to_show[] = "--", nightTemp_to_show[] = "--";
+	double_digit_to_string(weather[page-1].month, month_to_show);
+	double_digit_to_string(weather[page-1].day, day_to_show);
 	dayWeather_str[0] = weather[page-1].dayWeather*2;
 	dayWeather_str[1] = weather[page-1].dayWeather*2 + 1;
 	nightWeather_str[0] = weather[page-1].nightWeather*2;
 	nightWeather_str[1] = weather[page-1].nightWeather*2 + 1;
-	dayTemp_to_show[0] = Char(weather[page-1].dayTemp / 10);
-	dayTemp_to_show[1] = Char(weather[page-1].dayTemp % 10);
-	nightTemp_to_show[0] = Char(weather[page-1].nightTemp / 10);
-	nightTemp_to_show[1] = Char(weather[page-1].nightTemp % 10);
-	OLED_ShowString(32,0,date_to_show,16);
-	OLED_ShowChineseString(0,2,0,day_chinese,2);
-	OLED_ShowString(32,2,":",16);
+	double_digit_to_string(weather[page-1].dayTemp, dayTemp_to_show);
+	double_digit_to_string(weather[page-1].nightTemp, nightTemp_to_show);
+	OLED_ShowString(32,0,month_to_show,16);
+	OLED_ShowChinese(48,0,1,15);
+	OLED_ShowString(64,0,day_to_show,16);
+	OLED_ShowChinese(80,0,1,17);
+	OLED_ShowChineseString(0,2,0,daytime_chinese,2);
+	OLED_ShowChar(36,2,'|',16);
 	OLED_ShowChineseString(48,2,3,dayWeather_str,2);
-	OLED_ShowString(80,2,dayTemp_to_show,16);
+	OLED_ShowChar(84,2,'|',16);
+	OLED_ShowString(96,2,dayTemp_to_show,16);
+	OLED_ShowChinese(112,2,3,136);
 	OLED_ShowChineseString(0,4,0,night_chinese,2);
-	OLED_ShowString(32,4,":",16);
+	OLED_ShowChar(36,4,'|',16);
 	OLED_ShowChineseString(48,4,3,nightWeather_str,2);
-	OLED_ShowString(80,4,nightTemp_to_show,16);
+	OLED_ShowChar(84,4,'|',16);
+	OLED_ShowString(96,4,nightTemp_to_show,16);
+	OLED_ShowChinese(112,4,3,136);
 }
 
 //void print_weather_base_now(uchar x, uchar y){
@@ -96,12 +99,14 @@ void print_weather_all(uchar page){
 //}
 
 void page_weather_all(){
+	char press_key_turn_page_chinese[] = {58,112,106,61,113,114};
 	uchar page = 1;
 	if(weather[0].month == 0 && weather[0].day == 0){
 		page_weather_error();
 		if(weather[0].month == 0 && weather[0].day == 0) return;
 	}
 	OLED_Clear();
+	OLED_ShowChineseString(16,6,0,press_key_turn_page_chinese,6);
 	while(1){
 		print_weather_all(page);
 		if(getKey() == 1){

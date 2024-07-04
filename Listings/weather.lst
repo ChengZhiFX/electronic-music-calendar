@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   WEATHER                                                           07/03/2024 18:31:25 PAGE 1   
+C51 COMPILER V9.60.7.0   WEATHER                                                           07/04/2024 19:58:40 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE WEATHER
@@ -57,92 +57,97 @@ line level    source
   46   1      }
   47          
   48          void print_weather_all(uchar page){
-  49   1        char day_chinese[] = {64,4}, night_chinese[] = {65,25};
+  49   1        char daytime_chinese[] = {64,4}, night_chinese[] = {65,25};
   50   1        uchar dayWeather_str[] = {0,1}, nightWeather_str[] = {0,1};
-  51   1        char date_to_show[] = "--/--", dayTemp_to_show[] = "--C", nightTemp_to_show[] = "--C";
-  52   1        date_to_show[0] = Char(weather[page-1].month / 10);
-  53   1        date_to_show[1] = Char(weather[page-1].month % 10);
-C51 COMPILER V9.60.7.0   WEATHER                                                           07/03/2024 18:31:25 PAGE 2   
+  51   1        char month_to_show[] = "--", day_to_show[] = "--", dayTemp_to_show[] = "--", nightTemp_to_show[] = "--";
+  52   1        double_digit_to_string(weather[page-1].month, month_to_show);
+  53   1        double_digit_to_string(weather[page-1].day, day_to_show);
+C51 COMPILER V9.60.7.0   WEATHER                                                           07/04/2024 19:58:40 PAGE 2   
 
-  54   1        date_to_show[3] = Char(weather[page-1].day / 10);
-  55   1        date_to_show[4] = Char(weather[page-1].day % 10);
-  56   1        dayWeather_str[0] = weather[page-1].dayWeather*2;
-  57   1        dayWeather_str[1] = weather[page-1].dayWeather*2 + 1;
-  58   1        nightWeather_str[0] = weather[page-1].nightWeather*2;
-  59   1        nightWeather_str[1] = weather[page-1].nightWeather*2 + 1;
-  60   1        dayTemp_to_show[0] = Char(weather[page-1].dayTemp / 10);
-  61   1        dayTemp_to_show[1] = Char(weather[page-1].dayTemp % 10);
-  62   1        nightTemp_to_show[0] = Char(weather[page-1].nightTemp / 10);
-  63   1        nightTemp_to_show[1] = Char(weather[page-1].nightTemp % 10);
-  64   1        OLED_ShowString(32,0,date_to_show,16);
-  65   1        OLED_ShowChineseString(0,2,0,day_chinese,2);
-  66   1        OLED_ShowString(32,2,":",16);
-  67   1        OLED_ShowChineseString(48,2,3,dayWeather_str,2);
-  68   1        OLED_ShowString(80,2,dayTemp_to_show,16);
-  69   1        OLED_ShowChineseString(0,4,0,night_chinese,2);
-  70   1        OLED_ShowString(32,4,":",16);
-  71   1        OLED_ShowChineseString(48,4,3,nightWeather_str,2);
-  72   1        OLED_ShowString(80,4,nightTemp_to_show,16);
-  73   1      }
-  74          
-  75          //void print_weather_base_now(uchar x, uchar y){
-  76          //  uchar i, weather_str[2] = {0,0};
-  77          //  for(i=0;i<4;i++){
-  78          //    if(get_integer_month() == weather[i].month && get_integer_day() == weather[i].day){
-  79          //      if(get_integer_hour() < 6){
-  80          //        if(i-1>=0 && i-1<4){
-  81          //          weather_str[0] = weather[i-1].nightWeather*2;
-  82          //          weather_str[1] = weather[i-1].nightWeather*2 + 1;
-  83          //        }
-  84          //      }
-  85          //      else if(get_integer_hour() >= 18){
-  86          //        weather_str[0] = weather[i].nightWeather*2;
-  87          //        weather_str[1] = weather[i].nightWeather*2 + 1;
-  88          //      }
-  89          //      else{
-  90          //        weather_str[0] = weather[i].dayWeather*2;
-  91          //        weather_str[1] = weather[i].dayWeather*2 + 1;
-  92          //      }
-  93          //      OLED_ShowChineseString(x,y,3,weather_str,2);
-  94          //    }
-  95          //  }
-  96          //}
-  97          
-  98          void page_weather_all(){
-  99   1        uchar page = 1;
- 100   1        if(weather[0].month == 0 && weather[0].day == 0){
- 101   2          page_weather_error();
- 102   2          if(weather[0].month == 0 && weather[0].day == 0) return;
- 103   2        }
- 104   1        OLED_Clear();
- 105   1        while(1){
- 106   2          print_weather_all(page);
- 107   2          if(getKey() == 1){
- 108   3            page--;
- 109   3            if(page < 1) page = 1;
- 110   3          }
- 111   2          else if(getKey() == 2){
- 112   3            page++;
- 113   3            if(page > 4) page = 4;
- 114   3          }
- 115   2          else if(getKey() == 3){
-C51 COMPILER V9.60.7.0   WEATHER                                                           07/03/2024 18:31:25 PAGE 3   
+  54   1        dayWeather_str[0] = weather[page-1].dayWeather*2;
+  55   1        dayWeather_str[1] = weather[page-1].dayWeather*2 + 1;
+  56   1        nightWeather_str[0] = weather[page-1].nightWeather*2;
+  57   1        nightWeather_str[1] = weather[page-1].nightWeather*2 + 1;
+  58   1        double_digit_to_string(weather[page-1].dayTemp, dayTemp_to_show);
+  59   1        double_digit_to_string(weather[page-1].nightTemp, nightTemp_to_show);
+  60   1        OLED_ShowString(32,0,month_to_show,16);
+  61   1        OLED_ShowChinese(48,0,1,15);
+  62   1        OLED_ShowString(64,0,day_to_show,16);
+  63   1        OLED_ShowChinese(80,0,1,17);
+  64   1        OLED_ShowChineseString(0,2,0,daytime_chinese,2);
+  65   1        OLED_ShowChar(36,2,'|',16);
+  66   1        OLED_ShowChineseString(48,2,3,dayWeather_str,2);
+  67   1        OLED_ShowChar(84,2,'|',16);
+  68   1        OLED_ShowString(96,2,dayTemp_to_show,16);
+  69   1        OLED_ShowChinese(112,2,3,136);
+  70   1        OLED_ShowChineseString(0,4,0,night_chinese,2);
+  71   1        OLED_ShowChar(36,4,'|',16);
+  72   1        OLED_ShowChineseString(48,4,3,nightWeather_str,2);
+  73   1        OLED_ShowChar(84,4,'|',16);
+  74   1        OLED_ShowString(96,4,nightTemp_to_show,16);
+  75   1        OLED_ShowChinese(112,4,3,136);
+  76   1      }
+  77          
+  78          //void print_weather_base_now(uchar x, uchar y){
+  79          //  uchar i, weather_str[2] = {0,0};
+  80          //  for(i=0;i<4;i++){
+  81          //    if(get_integer_month() == weather[i].month && get_integer_day() == weather[i].day){
+  82          //      if(get_integer_hour() < 6){
+  83          //        if(i-1>=0 && i-1<4){
+  84          //          weather_str[0] = weather[i-1].nightWeather*2;
+  85          //          weather_str[1] = weather[i-1].nightWeather*2 + 1;
+  86          //        }
+  87          //      }
+  88          //      else if(get_integer_hour() >= 18){
+  89          //        weather_str[0] = weather[i].nightWeather*2;
+  90          //        weather_str[1] = weather[i].nightWeather*2 + 1;
+  91          //      }
+  92          //      else{
+  93          //        weather_str[0] = weather[i].dayWeather*2;
+  94          //        weather_str[1] = weather[i].dayWeather*2 + 1;
+  95          //      }
+  96          //      OLED_ShowChineseString(x,y,3,weather_str,2);
+  97          //    }
+  98          //  }
+  99          //}
+ 100          
+ 101          void page_weather_all(){
+ 102   1        char press_key_turn_page_chinese[] = {58,112,106,61,113,114};
+ 103   1        uchar page = 1;
+ 104   1        if(weather[0].month == 0 && weather[0].day == 0){
+ 105   2          page_weather_error();
+ 106   2          if(weather[0].month == 0 && weather[0].day == 0) return;
+ 107   2        }
+ 108   1        OLED_Clear();
+ 109   1        OLED_ShowChineseString(16,6,0,press_key_turn_page_chinese,6);
+ 110   1        while(1){
+ 111   2          print_weather_all(page);
+ 112   2          if(getKey() == 1){
+ 113   3            page--;
+ 114   3            if(page < 1) page = 1;
+ 115   3          }
+C51 COMPILER V9.60.7.0   WEATHER                                                           07/04/2024 19:58:40 PAGE 3   
 
- 116   3            OLED_Clear();
- 117   3            break;
- 118   3          }
- 119   2          else if(getKey() == 4){
- 120   3            OLED_Clear();
- 121   3            break;
- 122   3          }
- 123   2        }
- 124   1      }
+ 116   2          else if(getKey() == 2){
+ 117   3            page++;
+ 118   3            if(page > 4) page = 4;
+ 119   3          }
+ 120   2          else if(getKey() == 3){
+ 121   3            OLED_Clear();
+ 122   3            break;
+ 123   3          }
+ 124   2          else if(getKey() == 4){
+ 125   3            OLED_Clear();
+ 126   3            break;
+ 127   3          }
+ 128   2        }
+ 129   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1043    ----
-   CONSTANT SIZE    =     43    ----
-   XDATA SIZE       =     24      47
+   CODE SIZE        =   1104    ----
+   CONSTANT SIZE    =     45    ----
+   XDATA SIZE       =     24      51
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

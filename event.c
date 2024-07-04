@@ -3,10 +3,11 @@
 #include "keyscan.h"
 #include "alarm.h"
 #include "delay.h"
+#include "bmp.h"
 
 Date today;
 Event event;
-uchar redraw = 0, event_about_to_happen_old = 0, event_about_to_happen_new = 0, event_status_temp = 0;
+uchar redraw = 0, event_about_to_happen_original = 0, event_about_to_happen_new = 0, event_status_temp = 0;
 
 void event_init(){
 	event.year = 0;
@@ -78,9 +79,9 @@ void set_event_content(char content[20]){
 
 void event_tick_tock(uchar x, uchar y){
 	event_about_to_happen_new = is_event_about_to_happen();
-	if(event_about_to_happen_new != event_about_to_happen_old){
+	if(event_about_to_happen_new != event_about_to_happen_original){
 		redraw = 1;
-		event_about_to_happen_old = event_about_to_happen_new;
+		event_about_to_happen_original = event_about_to_happen_new;
 	}
 	if(redraw){
 		OLED_ShowString(x,y,"                ",16);
@@ -112,6 +113,7 @@ void page_event_view(){
 	char remind_chinese[] = {29,30}, only_same_chinese[] = {80,79,4}, same_and_in_advance_chinese[] = {79,4,23,29,76,77,4};
 	char saved_chinese[] = {29,30,13,14,15}, if_sure_to_clear_chinese[] = {81,36,82,83,69,70,84}, cancel_chinese[] = {85,86}, sure_chinese[] = {81,36};
 	uchar weekday_char[2] = {16, 15};
+	event_status_temp = event.status;
 	OLED_Clear();
 	while(1){
 		if(!event.year){
@@ -157,7 +159,8 @@ void page_event_view(){
 		else if(getKey() == 4){
 			OLED_Clear();
 			event.status = event_status_temp;
-			OLED_ShowChineseString(24,2,0,saved_chinese,5);
+			OLED_DrawBMP(0, 0, 128, 4, success_icon);
+			OLED_ShowChineseString(24,4,0,saved_chinese,5);
 //			OLED_ShowString(32,2,"Saved!",16);
 			delay_ms(2000);
 			OLED_Clear();

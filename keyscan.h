@@ -17,6 +17,8 @@ sbit key2=P2^3;
 sbit key3=P1^1;
 sbit key4=P1^0;
 
+sbit LED=P0^0;
+
 uchar getKey();
 
 #endif

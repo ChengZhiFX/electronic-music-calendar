@@ -1,12 +1,5 @@
 #include "delay.h"
 
-void Delay_50ms(uint Del_50ms)
-{
-	unsigned int m;
-	for(;Del_50ms>0;Del_50ms--)
-		for(m=6245;m>0;m--);
-}
-
 void delay_ms(uint ms)
 {
 	uchar j;

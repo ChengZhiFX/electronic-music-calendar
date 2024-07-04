@@ -18,7 +18,7 @@ typedef struct alarm
 {	char minute;
 	char hour;
 	char ringtone;
-	uchar enable;
+	uchar status;
 }Alarm;
 
 char adjust_12(char month_num);

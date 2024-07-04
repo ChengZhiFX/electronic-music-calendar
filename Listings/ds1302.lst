@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 1   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DS1302
@@ -62,7 +62,7 @@ line level    source
   52          //从DS1302读出一字节数据
   53          uchar ds1302_read_byte(uchar addr) {
   54   1      
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 2   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 2   
 
   55   1        uchar i,temp; 
   56   1        RST=1;          //启动DS1302总线
@@ -126,7 +126,7 @@ line level    source
  114   1        char time_to_show[9], am_or_pm[3];
  115   1        read_discrete_time();
  116   1        if(hour_type == 12){
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 3   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 3   
 
  117   2          hour = get_integer_hour();
  118   2          if(hour >= 12){
@@ -190,7 +190,7 @@ line level    source
  176   1        date_to_show[7] = '/';
  177   1        double_digit_to_string(day, date_to_show+8);
  178   1        date_to_show[10] = 0;
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 4   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 4   
 
  179   1        OLED_ShowString(x,y,date_to_show,16);
  180   1        if(calculate_week_day(year, month, day) == 7) weekday_char[1] = 17;
@@ -254,7 +254,7 @@ line level    source
  238   1        dis_time_buf[6]=(time_buf[3]>>4); //日   
  239   1        dis_time_buf[7]=(time_buf[3]&0x0f);
  240   1         
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 5   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 5   
 
  241   1        dis_time_buf[14]=(time_buf[7]&0x07); //星期
  242   1         
@@ -318,7 +318,7 @@ line level    source
  300   2          year--;
  301   2        }
  302   1        iWeek = (day+2*month+3*(month+1)/5+year+year/4-year/100+year/400)%7 + 1;
-C51 COMPILER V9.60.7.0   DS1302                                                            07/03/2024 17:16:48 PAGE 6   
+C51 COMPILER V9.60.7.0   DS1302                                                            07/04/2024 19:58:39 PAGE 6   
 
  303   1        return iWeek;
  304   1      }

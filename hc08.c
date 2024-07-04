@@ -9,9 +9,10 @@
 #include "mp3.h"
 #include "weather.h"
 #include "event.h"
+#include "keyscan.h"
 
+uchar hc08_enabled = 1;
 uchar receive_data, flag=0, index=0;
-//uchar send_buffer[36] = "广州汇承信息科技有限公司www.hc01.com";
 uchar rcv_buffer[20];
 
 void switch_hour_type();
@@ -72,7 +73,7 @@ void set_alarm_via_bt(){
 void set_volume_via_bt(){
 	if(receive_data!='#'){
 		if(receive_data=='?'){
-			set_volume(5*Tinyint(rcv_buffer[0]));
+			set_notification_volume(5*Tinyint(rcv_buffer[0]));
 			flag = 0;
 			index = 0;
 			return;
@@ -138,8 +139,7 @@ void set_event_via_bt(){
 ***********************************************************************/
 void Com_Int(void) interrupt 4 {
 	uchar i;
-//  uchar receive_data;
-
+	if(!hc08_enabled) return;
   EA = 0;
   if(RI == 1){//当硬件接收到一个数据时，RI会置位
 		RI = 0;
@@ -191,18 +191,12 @@ void Com_Int(void) interrupt 4 {
 		}
 		LED = 1;
 	}
-//		for(i=0; i<36; i++)
-//		{
-//			SBUF = send_buffer[i];   //将要发送的数据放入到发送寄存器
-//			while(!TI);		    //等待发送数据完成
-//			TI=0;			        //清除发送完成标志位
-//			delay_ms(1);
-//		}
 	EA = 1;
 }
 
-void sendData(uchar *datas)
-{	uchar i=0;
+void sendData(uchar *datas){
+	uchar i=0;
+	if(!hc08_enabled) return;
 	while(datas[i]!='\0')
     {	SBUF=datas[i];		  //???????????????
     	while(!TI);       //????????

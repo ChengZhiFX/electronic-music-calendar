@@ -451,6 +451,11 @@
               <FileType>1</FileType>
               <FilePath>.\event.c</FilePath>
             </File>
+            <File>
+              <FileName>bmp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bmp.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

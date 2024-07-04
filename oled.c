@@ -193,7 +193,7 @@ void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size){
             for(i=0;i<6;i++)
             OLED_WR_Byte(F6x8[c][i],OLED_DATA);
         }
-        else if(Char_Size == 24){    
+        else if(Char_Size == 24){
             OLED_Set_Pos(x,y);    
             for(i=0;i<12;i++)
                 OLED_WR_Byte(F12X24[c*36+i],OLED_DATA);
@@ -205,6 +205,7 @@ void OLED_ShowChar(uchar x,uchar y,uchar chr,uchar Char_Size){
                 OLED_WR_Byte(F12X24[c*36+i+24],OLED_DATA);
 				}
 }
+
 void OLED_ShowChar_Reverse(uchar x,uchar y,uchar chr,uchar Char_Size){          
         uchar c=0,i=0;    
 //        x+=2;

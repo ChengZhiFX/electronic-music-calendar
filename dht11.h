@@ -18,7 +18,8 @@ typedef struct sensor
 	uchar humid;
 }Sensor;
 
-void getdata(uchar *sensordata);
+uchar getdata(uchar *sensordata);
+uchar dht11_try_catch_data();
 void print_temp_and_hum(uchar x, uchar y);
 
 #endif 

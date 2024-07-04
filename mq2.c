@@ -4,11 +4,13 @@
 #include "oled.h"
 #include "keyscan.h"
 #include "hc08.h"
+#include "bmp.h"
 
-uchar smog_alarm_enable = 1;
+uchar mq2_enabled = 1;
 uchar smog_alarm_suspend = 0;
 
 uchar isSmoking(){
+	if(!mq2_enabled) return 0;
 	if(mq2 == 0){
 		delay_for_mq2();
 		if(mq2 == 0) return 1;
@@ -17,14 +19,13 @@ uchar isSmoking(){
 }
 
 void page_smog_alarm(){
-	char smog_detected_chinese[] = {38,39,40,41,42}, view_chinese[] = {43,44,45,46,47};
-	char vol_init;
+	char smog_detected_chinese[] = {38,39,40,41,42,43,46,47}, press_key_cancel_chinese[] = {58,59,60,61,62,63};
 	OLED_Clear();
-	OLED_ShowChineseString(24,2,0,smog_detected_chinese,5);
-	OLED_ShowChineseString(24,4,0,view_chinese,5);
+	OLED_DrawBMP(0, 0, 128, 4, fire_icon);
+	OLED_ShowChineseString(0,4,0,smog_detected_chinese,8);
+	OLED_ShowChineseString(16,6,0,press_key_cancel_chinese,6);
 //	OLED_ShowString(0,2,"Smog Detected!",16);
-	vol_init = get_volume();
-	set_volume(30);
+	send_volume(get_alert_volume());
 	sendData("FIRE");
 	set_single_loop(1);
 	playmusic(19);
@@ -32,7 +33,7 @@ void page_smog_alarm(){
 		if(getKey() || !isSmoking()){
 			stopmusic();
 			set_single_loop(0);
-			set_volume(vol_init);
+			send_volume(get_notification_volume());
 			smog_alarm_suspend = 1;
 			OLED_Clear();
 			break;
@@ -41,12 +42,11 @@ void page_smog_alarm(){
 }
 
 void mq2_tick_tock(){
-	if(smog_alarm_enable){
-		if(isSmoking()){
-			if(!smog_alarm_suspend) page_smog_alarm();
-		}
-		else{
-			if(smog_alarm_suspend) smog_alarm_suspend = 0;
-		}
+	if(!mq2_enabled) return;
+	if(isSmoking()){
+		if(!smog_alarm_suspend) page_smog_alarm();
+	}
+	else{
+		if(smog_alarm_suspend) smog_alarm_suspend = 0;
 	}
 }

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              07/03/2024 20:50:57 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              07/04/2024 20:49:14 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -35,104 +35,108 @@ line level    source
   24   1      }
   25          
   26          void page_calendar(){
-  27   1        Date date;
-  28   1        date.year = get_integer_year();
-  29   1        date.month = get_integer_month();
-  30   1        date.day = get_integer_day();
-  31   1        OLED_Clear();
-  32   1        OLED_ShowChineseString(40,0,0,calendar_chinese,3);
-  33   1        while(1){
-  34   2          print_date_any_time(0, 2, date.year, date.month, date.day);
-  35   2          print_lunar_and_term_any_time(12,4, date.year, date.month, date.day);
-  36   2          if(getKey() == 1) date = date_addition_adjust(date.year, date.month, date.day + 1);
-  37   2          else if(getKey() == 2) date = date_subtraction_adjust(date.year, date.month, date.day - 1);
-  38   2          else if(getKey() == 3 || getKey() == 4){
-  39   3            OLED_Clear();
-  40   3            break;
-  41   3          }
-  42   2        }
-  43   1      }
-  44          
-  45          void page_function_menu(){
-  46   1        uchar selection = 0;
-  47   1        OLED_Clear();
-  48   1        while(1){
-  49   2          OLED_ShowChineseString(24,0,0,music_chinese,5);
-  50   2          OLED_ShowChineseString(40,2,0,calendar_chinese,3);
-  51   2          OLED_ShowChineseString(48,4,0,weather_chinese,2);
-  52   2          OLED_ShowChineseString(32,6,0,event_chinese,4);
-  53   2      //    OLED_ShowString(24,0,"Alarm",16);
-C51 COMPILER V9.60.7.0   MAIN                                                              07/03/2024 20:50:57 PAGE 2   
+  27   1        char press_key_turn_page_chinese[] = {58,112,106,61,113,114};
+  28   1        Date date;
+  29   1        date.year = get_integer_year();
+  30   1        date.month = get_integer_month();
+  31   1        date.day = get_integer_day();
+  32   1        OLED_Clear();
+  33   1        OLED_ShowChineseString(40,0,0,calendar_chinese,3);
+  34   1        OLED_ShowChineseString(16,6,0,press_key_turn_page_chinese,6);
+  35   1        while(1){
+  36   2          print_date_any_time(0, 2, date.year, date.month, date.day);
+  37   2          print_lunar_and_term_any_time(12,4, date.year, date.month, date.day);
+  38   2          if(getKey() == 1) date = date_addition_adjust(date.year, date.month, date.day + 1);
+  39   2          else if(getKey() == 2) date = date_subtraction_adjust(date.year, date.month, date.day - 1);
+  40   2          else if(getKey() == 3 || getKey() == 4){
+  41   3            OLED_Clear();
+  42   3            break;
+  43   3          }
+  44   2        }
+  45   1      }
+  46          
+  47          void page_function_menu(){
+  48   1        uchar selection = 0;
+  49   1        OLED_Clear();
+  50   1        while(1){
+  51   2          OLED_ShowChineseString(24,0,0,music_chinese,5);
+  52   2          OLED_ShowChineseString(40,2,0,calendar_chinese,3);
+  53   2          OLED_ShowChineseString(48,4,0,weather_chinese,2);
+C51 COMPILER V9.60.7.0   MAIN                                                              07/04/2024 20:49:14 PAGE 2   
 
-  54   2      //    OLED_ShowString(24,2,"Music",16);
-  55   2      //    OLED_ShowString(24,4,"Weather",16);
-  56   2      //    OLED_ShowString(24,6,"Calendar",16);
-  57   2          OLED_ShowChar(16,selection*2,'>',16);
-  58   2          if(getKey() == 1){
-  59   3            OLED_ShowChar(16,selection*2,' ',16);
-  60   3            if(selection == 0) selection = 3;
-  61   3            else selection -= 1;
-  62   3          }
-  63   2          else if(getKey() == 2){
-  64   3            OLED_ShowChar(16,selection*2,' ',16);
-  65   3            if(selection == 3) selection = 0;
-  66   3            else selection += 1;
-  67   3          }
-  68   2          else if(getKey() == 3){
-  69   3            OLED_Clear();
-  70   3            break;
-  71   3          }
-  72   2          else if(getKey() == 4){
-  73   3            switch(selection){
-  74   4              case 0: {page_music(); break;}
-  75   4              case 1: {page_calendar(); break;}
-  76   4              case 2: {page_weather_all(); break;}
-  77   4              case 3: {page_event_view(); break;}
-  78   4              default: break;
-  79   4            }
-  80   3          }
-  81   2        }
-  82   1      }
-  83          
-  84          /*******************************Main*******************************/
-  85          void main(){
-  86   1        uchar index = 1;
-  87   1        Delay_50ms(1);//等待系统稳定
-  88   1        ds1302_init();  //DS1302初始化
-  89   1        UsartConfiguration();
-  90   1        OLED_Init();
-  91   1        OLED_Display_On();
-  92   1        OLED_Clear();
-  93   1        OLED_DrawBMP(0, 0, 128, 8, start_up);
-  94   1        Delay_50ms(25);
-  95   1        OLED_Clear();
+  54   2          OLED_ShowChineseString(32,6,0,event_chinese,4);
+  55   2      //    OLED_ShowString(24,0,"Alarm",16);
+  56   2      //    OLED_ShowString(24,2,"Music",16);
+  57   2      //    OLED_ShowString(24,4,"Weather",16);
+  58   2      //    OLED_ShowString(24,6,"Calendar",16);
+  59   2          OLED_ShowChar(16,selection*2,'>',16);
+  60   2          if(getKey() == 1){
+  61   3            OLED_ShowChar(16,selection*2,' ',16);
+  62   3            if(selection == 0) selection = 3;
+  63   3            else selection -= 1;
+  64   3          }
+  65   2          else if(getKey() == 2){
+  66   3            OLED_ShowChar(16,selection*2,' ',16);
+  67   3            if(selection == 3) selection = 0;
+  68   3            else selection += 1;
+  69   3          }
+  70   2          else if(getKey() == 3){
+  71   3            OLED_Clear();
+  72   3            break;
+  73   3          }
+  74   2          else if(getKey() == 4){
+  75   3            switch(selection){
+  76   4              case 0: {page_music(); break;}
+  77   4              case 1: {page_calendar(); break;}
+  78   4              case 2: {page_weather_all(); break;}
+  79   4              case 3: {page_event_view(); break;}
+  80   4              default: break;
+  81   4            }
+  82   3          }
+  83   2        }
+  84   1      }
+  85          
+  86          /*******************************Main*******************************/
+  87          void main(){
+  88   1        uchar index = 1;
+  89   1        delay_ms(50);//等待系统稳定
+  90   1        ds1302_init();  //DS1302初始化
+  91   1        UsartConfiguration();
+  92   1        OLED_Init();
+  93   1        OLED_Display_On();
+  94   1        OLED_Clear();
+  95   1        OLED_DrawBMP(0, 0, 128, 8, start_up);
   96   1        alarm_init();
   97   1        weather_init();
   98   1        event_init();
-  99   1        while(1){
- 100   2          print_time_now(0,3,hour_type);
- 101   2          print_date_now(0,1);
- 102   2          if(index){print_temp_and_hum(44, 0); index = 0;}
- 103   2          else{mq2_tick_tock(); index = 1;}
- 104   2          event_tick_tock(0,6);
- 105   2          alarm_tick_tock();
- 106   2          switch(getKey()){
- 107   3            case 1: {switch_hour_type(); break;}
- 108   3            case 2: {page_alarm(); break;}
- 109   3            case 3: {page_function_menu(); break;}
- 110   3            case 4: {page_settings(); break;}
- 111   3            default: break;
- 112   3          }
- 113   2        }
- 114   1      }
+  99   1        dht11_try_catch_data();
+ 100   1        mp3_init();
+ 101   1        delay_ms(2000);
+ 102   1        OLED_Clear();
+ 103   1        while(1){
+ 104   2          print_time_now(0,3,hour_type);
+ 105   2          print_date_now(0,1);
+ 106   2          if(index){print_temp_and_hum(38, 0); index = 0;}
+ 107   2          else{mq2_tick_tock(); index = 1;}
+ 108   2          event_tick_tock(0,6);
+ 109   2          alarm_tick_tock();
+ 110   2          switch(getKey()){
+ 111   3            case 1: {switch_hour_type(); break;}
+ 112   3            case 2: {page_alarm(); break;}
+ 113   3            case 3: {page_function_menu(); break;}
+ 114   3            case 4: {page_settings(); break;}
+ 115   3            default: break;
+C51 COMPILER V9.60.7.0   MAIN                                                              07/04/2024 20:49:14 PAGE 3   
 
-C51 COMPILER V9.60.7.0   MAIN                                                              07/03/2024 20:50:57 PAGE 3   
+ 116   3          }
+ 117   2        }
+ 118   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    629    ----
-   CONSTANT SIZE    =   1024    ----
-   XDATA SIZE       =     15       6
+   CODE SIZE        =    676    ----
+   CONSTANT SIZE    =      6    ----
+   XDATA SIZE       =     15      12
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
