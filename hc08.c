@@ -185,62 +185,63 @@ void switch_mod_via_bt(){
 ***********************************************************************/
 void Com_Int(void) interrupt 4 {
 	uchar i;
-	if(!hc08_enabled) return;
   EA = 0;
   if(RI == 1){//当硬件接收到一个数据时，RI会置位
 		RI = 0;
-		LED = 0;
 		receive_data = SBUF;//接收到的数据
-		if(flag == 0){
-			flag = receive_data;
-			index = 0;
-			strcpy(rcv_buffer, "");
-		}
-		switch(flag){
-			case 0x3A:{
-				switch_hour_type();
-				flag=0;
-				index=0;
-				break;
+		if(hc08_enabled){
+			LED = 0;
+			if(flag == 0){
+				flag = receive_data;
+				index = 0;
+				strcpy(rcv_buffer, "");
 			}
-			case '&':{
-				set_date_via_bt();
-				break;
-			}
-			case '@':{
-				set_time_via_bt();
-				break;
-			}
-			case '$':{
-				sync_time_via_bt();
-				break;
-			}
-			case '%':{
-				set_alarm_via_bt();
-				break;
-			}
-			case '#':{
-				set_volume_via_bt();
-				break;
-			}
-			case '^':{
-				rcv_weather_all_via_bt();
-				break;
-			}
-			case '`':{
-				set_event_via_bt();
-				break;
-			}
-			case '*':{
-				play_music_via_bt();
-				break;
-			}
-			case '~':{
-				switch_mod_via_bt();
-				break;
-			}
-			default:{
-				break;
+			switch(flag){
+				case 0x3A:{
+					switch_hour_type();
+					flag=0;
+					index=0;
+					break;
+				}
+				case '&':{
+					set_date_via_bt();
+					break;
+				}
+				case '@':{
+					set_time_via_bt();
+					break;
+				}
+				case '$':{
+					sync_time_via_bt();
+					break;
+				}
+				case '%':{
+					set_alarm_via_bt();
+					break;
+				}
+				case '#':{
+					set_volume_via_bt();
+					break;
+				}
+				case '^':{
+					rcv_weather_all_via_bt();
+					break;
+				}
+				case '`':{
+					set_event_via_bt();
+					break;
+				}
+				case '*':{
+					play_music_via_bt();
+					break;
+				}
+				case '~':{
+					switch_mod_via_bt();
+					break;
+				}
+				default:{
+					break;
+				}
 			}
 		}
 		LED = 1;
