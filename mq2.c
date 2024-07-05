@@ -25,15 +25,13 @@ void page_smog_alarm(){
 	OLED_ShowChineseString(0,4,0,smog_detected_chinese,8);
 	OLED_ShowChineseString(16,6,0,press_key_cancel_chinese,6);
 //	OLED_ShowString(0,2,"Smog Detected!",16);
-	send_volume(get_alert_volume());
 	sendData("FIRE");
 	set_single_loop(1);
-	playmusic(19);
+	playmusic(19,3);
 	while(1){
 		if(getKey() || !isSmoking()){
 			stopmusic();
 			set_single_loop(0);
-			send_volume(get_notification_volume());
 			smog_alarm_suspend = 1;
 			OLED_Clear();
 			break;

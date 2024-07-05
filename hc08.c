@@ -73,7 +73,18 @@ void set_alarm_via_bt(){
 void set_volume_via_bt(){
 	if(receive_data!='#'){
 		if(receive_data=='?'){
-			set_notification_volume(5*Tinyint(rcv_buffer[0]));
+			if(rcv_buffer[0] == '1'){
+				set_notification_volume(5*Tinyint(rcv_buffer[1]));
+				playmusic(10,1);
+			}
+			else if(rcv_buffer[0] == '2'){
+				set_media_volume(5*Tinyint(rcv_buffer[1]));
+				send_volume(2);
+			}
+			else if(rcv_buffer[0] == '3'){
+				set_alert_volume(5*Tinyint(rcv_buffer[1]));
+				playmusic(19,3);
+			}
 			flag = 0;
 			index = 0;
 			return;
@@ -132,6 +143,41 @@ void set_event_via_bt(){
 	index++;
 }
 
+void play_music_via_bt(){
+	if(receive_data!='*'){
+		if(receive_data=='?'){
+			if(rcv_buffer[1] == '1'){
+				playmusic(Tinyint(rcv_buffer[0]),2);
+			}
+			else if(rcv_buffer[1] == '0'){
+				stopmusic();
+			}
+			flag = 0;
+			index = 0;
+			return;
+		}
+		else rcv_buffer[index-1] = receive_data;
+	}
+	index++;
+}
+
+void switch_mod_via_bt(){
+	extern uchar dht11_enabled, mp3_enabled, mq2_enabled;
+	if(receive_data!='~'){
+		if(receive_data=='?'){
+			if(rcv_buffer[0] == '1') dht11_enabled = Tinyint(rcv_buffer[1]);
+			else if(rcv_buffer[0] == '2') mp3_enabled = Tinyint(rcv_buffer[1]);
+			else if(rcv_buffer[0] == '4') mq2_enabled = Tinyint(rcv_buffer[1]);
+			if(!mp3_enabled) stopmusic();
+			flag = 0;
+			index = 0;
+			return;
+		}
+		else rcv_buffer[index-1] = receive_data;
+	}
+	index++;
+}
+
 /********************************************************************
 * 名称 : Com_Int()
 * 功能 : 串口中断子函数
@@ -151,7 +197,7 @@ void Com_Int(void) interrupt 4 {
 			strcpy(rcv_buffer, "");
 		}
 		switch(flag){
-			case 0x2A:{
+			case 0x3A:{
 				switch_hour_type();
 				flag=0;
 				index=0;
@@ -183,6 +229,14 @@ void Com_Int(void) interrupt 4 {
 			}
 			case '`':{
 				set_event_via_bt();
+				break;
+			}
+			case '*':{
+				play_music_via_bt();
+				break;
+			}
+			case '~':{
+				switch_mod_via_bt();
 				break;
 			}
 			default:{

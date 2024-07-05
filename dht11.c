@@ -3,9 +3,10 @@
 #include "delay.h"
 
 const unsigned char code C8x8[] = {0x00,0x06,0x38,0x44,0x42,0x42,0x04,0x00};
-uchar dht11_enabled = 1;
+const unsigned char code T8x8[] = {0x00,0x00,0x00,0xE0,0xFF,0xEA,0x0A,0x00};
+const unsigned char code H8x8[] = {0x00,0x70,0xFC,0xFF,0xFC,0x70,0x00,0x00};
+uchar dht11_enabled = 1, dht11_old = 1;
 Sensor sensor;
-sbit LED=P0^0;
 
 //写时序的函数
 void DHT11_delay_us(uchar n)
@@ -65,7 +66,6 @@ uchar wait_ms_for_data(uint ms){
 uchar getdata(uchar *sensordata) {    //接收40位的数据
 	uchar R_H, R_L, T_H, T_L, revise, i;
 	uint ms = 2000;
-//	if(!dht11_enabled) return;
 	DHT11_start();
 	if (Data == 0) {
 		if(!wait_ms_for_data(2000)) return 0;
@@ -100,18 +100,31 @@ uchar dht11_try_catch_data(){
 void print_temp_and_hum(uchar x, uchar y){
 	char temper_to_show[3] = "--", humid_to_show[] = "--%";
 	uchar i=0;
-	if(!dht11_enabled) return;
-	if(!dht11_try_catch_data()){
-		OLED_ShowString(x,y,"         ",12);
+	if(!dht11_enabled){
+		if(dht11_old != dht11_enabled){
+			OLED_ShowString(x,y,"            ",12);
+			OLED_ShowString(x+9,y,"          ",12);
+			dht11_old = dht11_enabled;
+		}
 		return;
 	}
+	if(dht11_old != dht11_enabled) dht11_old = dht11_enabled;
+	if(!dht11_try_catch_data()){
+		OLED_ShowString(x,y,"            ",12);
+		OLED_ShowString(x+9,y,"          ",12);
+		return;
+	}
+	OLED_Set_Pos(x,y);
+	for(i=0;i<8;i++) OLED_WR_Byte(T8x8[i],OLED_DATA);
 	double_digit_to_string(sensor.temper, temper_to_show);
 	humid_to_show[0] = Char(sensor.humid / 10);
 	humid_to_show[1] = Char(sensor.humid % 10);
 	humid_to_show[2] = '%';
 	humid_to_show[3] = 0;
-	OLED_ShowString(x,y, temper_to_show,12);
-	OLED_Set_Pos(x+12,y);
+	OLED_ShowString(x+9,y, temper_to_show,12);
+	OLED_Set_Pos(x+21,y);
 	for(i=0;i<8;i++) OLED_WR_Byte(C8x8[i],OLED_DATA);
-	OLED_ShowString(x+30,y, humid_to_show,12);
+	OLED_ShowString(x+39,y, humid_to_show,12);
+	OLED_Set_Pos(x+59,y);
+	for(i=0;i<8;i++) OLED_WR_Byte(H8x8[i],OLED_DATA);
 }

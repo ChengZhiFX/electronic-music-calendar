@@ -141,41 +141,34 @@ void page_set_notification(){
 			stopmusic();
 			if(step == 1){
 				set_notification_volume(get_notification_volume() + 5);
-				send_volume(1);
-				playmusic(10);
+				playmusic(10,1);
 			}
 			else if(step == 2){
 				set_media_volume(get_media_volume() + 5);
-				send_volume(2);
-				playmusic(17);
+				playmusic(17,2);
 			}
 			else if(step == 3){
 				set_alert_volume(get_alert_volume() + 5);
-				send_volume(3);
-				playmusic(19);
+				playmusic(19,3);
 			}
 		}
 		else if(getKey() == 2){
 			stopmusic();
 			if(step == 1){
 				set_notification_volume(get_notification_volume() - 5);
-				send_volume(1);
-				playmusic(10);
+				playmusic(10,1);
 			}
 			else if(step == 2){
 				set_media_volume(get_media_volume() - 5);
-				send_volume(2);
-				playmusic(17);
+				playmusic(17,2);
 			}
 			else if(step == 3){
 				set_alert_volume(get_alert_volume() - 5);
-				send_volume(3);
-				playmusic(19);
+				playmusic(19,3);
 			}
 		}
 		else if(getKey() == 3){
 			stopmusic();
-			send_volume(1);
 			OLED_Clear();
 			break;
 		}
@@ -192,6 +185,7 @@ void page_mod_switch(){
 	char unable_to_boot_chinese[] = {115,31,32,71,116,9,117}, check_connection_chinese[] = {43,38,46,48,49,118,97,119};
 	extern uchar dht11_enabled, mp3_enabled, hc08_enabled, mq2_enabled;
 	uchar step = 1, dht11_temp = dht11_enabled, mp3_temp = mp3_enabled, hc08_temp = hc08_enabled, mq2_temp = mq2_enabled;
+	uchar dht11_old = dht11_enabled, mp3_old = mp3_enabled, mq2_old = mq2_enabled;
 	OLED_Clear();
 	OLED_ShowChineseString(0,0,0,temp_and_hum_sensor_chinese,5);
 	OLED_ShowChar(80,0,'|',16);
@@ -202,6 +196,9 @@ void page_mod_switch(){
 	OLED_ShowChineseString(0,6,0,smog_sensor_chinese,4);
 	OLED_ShowChar(80,6,'|',16);
 	while(1){
+		if(dht11_old != dht11_enabled){dht11_old = dht11_enabled; dht11_temp = dht11_enabled;}
+		if(mp3_old != mp3_enabled){mp3_old = mp3_enabled; mp3_temp = mp3_enabled;}
+		if(mq2_old != mq2_enabled){mq2_old = mq2_enabled; mq2_temp = mq2_enabled;}
 		if(step == 1){
 			if(dht11_temp) OLED_ShowChineseString_Reverse(96,0,0,enabled_chinese,2);
 			else OLED_ShowChineseString_Reverse(96,0,0,disabled_chinese,2);
@@ -270,6 +267,7 @@ void page_mod_switch(){
 				mp3_enabled = mp3_temp;
 				hc08_enabled = hc08_temp;
 				mq2_enabled = mq2_temp;
+				if(!mp3_enabled) stopmusic();
 				OLED_DrawBMP(0, 0, 128, 4, success_icon);
 				OLED_ShowChineseString(24,4,0,saved_chinese,5);
 				delay_ms(2000);

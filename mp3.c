@@ -39,9 +39,10 @@ void Send ( uchar addr )//·¢ËÍº¯Êý¡£
     EA = 1;//»Ö¸´ÖÐ¶Ï
 }
 
-void playmusic(uchar num){
+void playmusic(uchar num, uchar vol_type){
 	uchar num_h,num_l;
 	if(!mp3_enabled) return;
+	send_volume(vol_type);
 	if(num >= 10){
 		num_h = num / 10;
 		num_l = num % 10;
@@ -59,6 +60,7 @@ void playmusic(uchar num){
 
 void stopmusic(){
 	Send(0x13);
+	send_volume(1);
 }
 
 void set_single_loop(uchar is_loop){
@@ -89,8 +91,7 @@ void send_volume(uchar vol_type){
 
 void mp3_init(){
 	set_notification_volume(20);
-	send_volume(1);
-	playmusic(20);
+	playmusic(20,1);
 }
 
 char get_notification_volume(){
@@ -129,7 +130,7 @@ void page_music(){
 	char music_playing[] = "Music1", vol_to_show[] = ":  ";
 	OLED_Clear();
 	send_volume(2);
-	playmusic(1);
+	playmusic(1,2);
 	OLED_ShowChineseString(24,0,0,title_chinese,5);
 	OLED_ShowChineseString(20,4,0,media_vol_chinese,4);
 	OLED_ShowChineseString(0,6,0,cancel_chinese,2);
@@ -150,7 +151,6 @@ void page_music(){
 		}
 		else if(getKey() == 3){
 			stopmusic();
-			send_volume(1);
 			OLED_Clear();
 			break;
 		}
@@ -159,7 +159,7 @@ void page_music(){
 			selection++;
 			if(selection >= 10) selection = 1;
 			music_playing[5] = Char(selection);
-			playmusic(selection);
+			playmusic(selection,2);
 		}
 	}
 }

@@ -14,7 +14,7 @@
 sbit sda = P3^7;
 
 void Send( uchar addr );
-void playmusic(uchar num);
+void playmusic(uchar num, uchar vol_type);
 void stopmusic();
 void set_single_loop(uchar is_loop);
 void send_volume(uchar vol_type);

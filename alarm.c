@@ -163,13 +163,12 @@ void alarm_tick_tock(){
 void page_ring(){
 	uchar alarm_going_off_chinese[] = {0,1,16,17,18}, press_key_cancel_chinese[] = {58,59,60,61,62,63};
 	OLED_Clear();
-	send_volume(1);
 	OLED_DrawBMP(0, 0, 128, 4, alarm_icon);
 	OLED_ShowChineseString(24,4,0,alarm_going_off_chinese,5);
 	OLED_ShowChineseString(16,6,0,press_key_cancel_chinese,6);
 //	OLED_ShowString(0,2,"Alarm going off",16);
 	set_single_loop(1);
-	playmusic(alarm.ringtone);
+	playmusic(alarm.ringtone,1);
 	while(1){
 		if(getKey() || get_integer_minute() == alarm.minute + 3){
 			stopmusic();

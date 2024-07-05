@@ -17,6 +17,10 @@
 extern Alarm alarm;
 static uchar event_chinese[] = {69,70,29,30}, music_chinese[] = {2,3,66,67,68}, weather_chinese[] = {4,5}, calendar_chinese[] = {6,7,8};
 uchar hour_type = 24;
+extern uchar dht11_enabled, mp3_enabled, hc08_enabled, mq2_enabled;
+const unsigned char code B8x8[] = {0x00,0x24,0x18,0xFF,0x99,0x66,0x00,0x00};
+const unsigned char code S8x8[] = {0x3C,0x24,0x42,0x81,0xFF,0x24,0x18,0x00};
+const unsigned char code N8x8[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
 void switch_hour_type(){
 	if(hour_type == 12) hour_type = 24;
@@ -85,7 +89,7 @@ void page_function_menu(){
 
 /*******************************Main*******************************/
 void main(){
-	uchar index = 1;
+	uchar i = 0, index = 1;
 	delay_ms(50);//等待系统稳定
 	ds1302_init();  //DS1302初始化
 	UsartConfiguration();
@@ -103,8 +107,24 @@ void main(){
 	while(1){
 		print_time_now(0,3,hour_type);
 		print_date_now(0,1);
-		if(index){print_temp_and_hum(38, 0); index = 0;}
+		if(index){print_temp_and_hum(29, 0); index = 0;}
 		else{mq2_tick_tock(); index = 1;}
+		if(hc08_enabled){
+			OLED_Set_Pos(0,0);
+			for(i=0;i<8;i++) OLED_WR_Byte(B8x8[i],OLED_DATA);
+		}
+		else{
+			OLED_Set_Pos(0,0);
+			for(i=0;i<8;i++) OLED_WR_Byte(N8x8[i],OLED_DATA);
+		}
+		if(mp3_enabled){
+			OLED_Set_Pos(120,0);
+			for(i=0;i<8;i++) OLED_WR_Byte(S8x8[i],OLED_DATA);
+		}
+		else{
+			OLED_Set_Pos(120,0);
+			for(i=0;i<8;i++) OLED_WR_Byte(N8x8[i],OLED_DATA);
+		}
 		event_tick_tock(0,6);
 		alarm_tick_tock();
 		switch(getKey()){
